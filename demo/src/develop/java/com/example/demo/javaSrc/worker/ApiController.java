@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.javaSrc.people.People;
 import com.example.demo.javaSrc.people.PeopleService;
-import com.example.demo.school.School;
-import com.example.demo.school.SchoolService;
-import com.example.demo.school.SchoolClass;
-import com.example.demo.school.ClassService;
+import com.example.demo.javaSrc.school.School;
+import com.example.demo.javaSrc.school.SchoolService;
+import com.example.demo.javaSrc.school.SchoolClass;
+import com.example.demo.javaSrc.school.ClassService;
 
 @RestController
 @RequestMapping("/api")
@@ -125,8 +125,6 @@ public class ApiController {
         return all;
     }
 
-
-
     @PreAuthorize("hasRole('TEACHER')")
     @PostMapping("/users")
     public ResponseEntity<People> createUser(
@@ -145,31 +143,6 @@ public class ApiController {
 
         return ResponseEntity.ok(peopleService.createPeople(newUser));
     }
-
-   
-    @PreAuthorize("hasRole('TEACHER')")
-    @GetMapping("/stats")
-    public Map<String, Long> getStats(
-            Authentication auth,
-            @RequestParam(required = false) Long schoolId,
-            @RequestParam(required = false) Long classId) {
-
-        People me = currentUser(auth);
-        Long sch = schoolId != null ? schoolId : me.getSchoolId();
-        Long cls = classId  != null ? classId  : me.getClassId();
-
-        long totalTasks     = taskService.getBySchoolAndClass(sch, cls).size();
-        long completedTasks = taskService.getBySchoolAndClass(sch, cls)
-                                         .stream().filter(Task::isCompleted).count();
-        long totalEvents    = eventService.getBySchoolAndClass(sch, cls).size();
-
-        return Map.of(
-            "totalTasks",     totalTasks,
-            "completedTasks", completedTasks,
-            "totalEvents",    totalEvents
-        );
-    }
-
     
     @GetMapping("/me")
     public ResponseEntity<People> getMyProfile(Authentication auth) {
