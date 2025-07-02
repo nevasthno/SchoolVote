@@ -1,0 +1,172 @@
+ * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #2c2c2c;
+      color: #fff;
+    }
+
+    header {
+      background-color: #8B0000;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      color: white;
+    }
+
+    h1 {
+      text-align: center;
+      color: #ff4c4c;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    section {
+      background-color: #444444;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+
+    h2 {
+      color: #ff4c4c;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    #calendar-table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #eeeeee;
+      color: #000;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    #calendar-table th,
+    #calendar-table td {
+      border: 1px solid #8B0000;
+      padding: 8px;
+      text-align: center;
+      vertical-align: top;
+      min-height: 80px;
+    }
+
+    #calendar-table th {
+      background-color: #8B0000;
+      color: #fff;
+    }
+
+    #calendar-table td:hover {
+      background-color: #ffcccc;
+    }
+
+    #calendar-table td span.event {
+      display: block;
+      margin-top: 4px;
+      padding: 2px 4px;
+      font-size: 0.8em;
+      background-color: #007bff;
+      color: #fff;
+      border-radius: 4px;
+      word-break: break-word;
+    }
+
+    #tasks-list li.completed {
+      text-decoration: line-through;
+      color: gray;
+    }
+
+    button {
+      background-color: #ff4c4c;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #cc0000;
+    }
+
+  
+
+    #profile-page {
+      display: none;
+      background-color: #f4f7f9;
+      color: #333;
+    }
+
+    #profile-page header {
+      background-color: #0066cc;
+      color: white;
+    }
+
+    .auth-button {
+      background-color: #ff5252;
+      float: right;
+      margin-top: -45px;
+    }
+
+    .auth-button:hover {
+      background-color: #e04848;
+    }
+
+    #profile-page main {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    #profile-page section {
+      background-color: #ffffff;
+      color: #000;
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    #profile-page h2 {
+      color: #0066cc;
+    }
+
+    input, textarea {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    #profile-page button {
+      background-color: #28a745;
+      color: white;
+    }
+
+    #profile-page button:hover {
+      background-color: #218838;
+    }
+    
+    #profile-page.active {
+    display: block;
+    }
