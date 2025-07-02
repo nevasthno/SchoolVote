@@ -1,4 +1,27 @@
-// Tab/page switching logic
+ const toggleButton = document.getElementById('toggleThemeButton');
+  const body = document.body;
+
+  // Проверим, сохранена ли тема
+  if (localStorage.getItem('theme') === 'dark') {
+    body.classList.add('dark-theme');
+  }
+
+  toggleButton.addEventListener('click', () => {
+    body.classList.toggle('dark-theme');
+    const isDark = body.classList.contains('dark-theme');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  });
+
+
+document.getElementById('poll-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const selected = document.querySelector('input[name="pollOption"]:checked');
+    if (selected) {
+        // Здесь можно добавить отправку на сервер
+        document.getElementById('poll-result').style.display = 'block';
+        this.style.display = 'none';
+    }
+});
 document.addEventListener("DOMContentLoaded", function () {
     const tabMain = document.getElementById("tab-main");
     const tabProfile = document.getElementById("tab-profile");
@@ -661,4 +684,5 @@ async function updateProfile(event) {
         console.error("Помилка оновлення профілю", e);
         alert("Не вдалося оновити профіль.");
     }
+    
 }
