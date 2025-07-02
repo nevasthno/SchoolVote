@@ -108,7 +108,7 @@ h2 {
 }
 
 button {
-  background-color: #2e7d32;
+  background-color: #4caf50;
   color: white;
   border: none;
   padding: 10px 14px;
@@ -118,7 +118,7 @@ button {
 }
 
 button:hover {
-  background-color: #1b5e20;
+  background-color: #388e3c;
 }
 
 /* Poll */
