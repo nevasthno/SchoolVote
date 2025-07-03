@@ -25,7 +25,7 @@
         }
 
         .nav-tabs button.active {
-            background: #ff4c4c;
+            background: #4ddd48;
             color: #fff;
         }
 
@@ -44,17 +44,78 @@
             padding: 18px 24px;
             margin-bottom: 18px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
-            border-left: 5px solid #0066cc;
+            border-left: 5px solid #6eee5d;
         }
 
         .aboutme-card h2 {
-            color: #0066cc;
+            color: #5edd2c;
             margin-bottom: 10px;
         }
 
         .aboutme-card p {
             margin-bottom: 6px;
         }
+        .theme-toggle-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.theme-toggle-button:hover {
+  background-color: #388e3c;
+}
+
+/* === Темна тема === */
+body.dark-theme {
+  background-color: #1f1f1f;
+  color: #e0e0e0;
+}
+
+body.dark-theme header {
+  background-color: #2b2b2b;
+  color: white;
+}
+
+body.dark-theme .nav-tabs button {
+  background-color: #444;
+  color: white;
+}
+
+body.dark-theme .nav-tabs button.active {
+  background-color: #6eee5d;
+  color: black;
+}
+
+body.dark-theme .aboutme-card {
+  background-color: #2b2b2b;
+  color: white;
+  border-left-color: #83ec59;
+  box-shadow: none;
+}
+
+body.dark-theme input,
+body.dark-theme textarea,
+body.dark-theme select {
+  background-color: #2b2b2b;
+  color: white;
+  border: 1px solid #555;
+}
+
+body.dark-theme table#calendar-table th,
+body.dark-theme table#calendar-table td {
+  background-color: #2c2c2c;
+  color: white;
+  border: 1px solid #444;
+}
+
+body.dark-theme #calendar-section {
+  background-color: #2a2a2a;
+}
+
     </style>
 </head>
 
@@ -62,6 +123,8 @@
     <header>
         <h1>Батьківська панель</h1>
         <button id="logoutButton">Вийти</button>
+        <button id="toggleThemeButton" class="theme-toggle-button">Змінити тему</button>
+
     </header>
     <div class="nav-tabs">
         <button id="tab-main" class="active" type="button">Головна інформація</button>

@@ -1,4 +1,39 @@
- const toggleButton = document.getElementById('toggleThemeButton');
+document.addEventListener('DOMContentLoaded', () => {
+    const pollData = JSON.parse(localStorage.getItem('currentPoll'));
+    if (!pollData) return;
+
+    document.getElementById('poll-question-text').innerText = pollData.question;
+    const optionsDiv = document.getElementById('poll-options-list');
+    optionsDiv.innerHTML = '';
+
+    pollData.options.forEach((opt, i) => {
+        const label = document.createElement('label');
+        label.innerHTML = `
+            <input type="radio" name="poll-option" value="${opt}">
+            ${opt}
+        `;
+        optionsDiv.appendChild(label);
+        optionsDiv.appendChild(document.createElement('br'));
+    });
+
+    document.getElementById('poll-form').style.display = 'block';
+});
+
+document.getElementById('poll-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const selected = document.querySelector('input[name="poll-option"]:checked');
+    if (!selected) {
+        alert('Оберіть варіант!');
+        return;
+    }
+    alert(`Ваша відповідь "${selected.value}" прийнята. Дякуємо!`);
+    // Тут можна зберігати відповідь, наприклад, у локальному сховищі або надсилати на сервер
+});
+
+
+
+
+const toggleButton = document.getElementById('toggleThemeButton');
   const body = document.body;
 
   // Проверим, сохранена ли тема
@@ -11,6 +46,8 @@
     const isDark = body.classList.contains('dark-theme');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
   });
+
+
 
 
 document.getElementById('poll-form').addEventListener('submit', function(e) {

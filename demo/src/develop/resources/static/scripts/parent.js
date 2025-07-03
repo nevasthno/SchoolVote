@@ -1,3 +1,16 @@
+const themeBtn = document.getElementById('toggleThemeButton');
+  const savedTheme = localStorage.getItem('theme');
+
+  if (savedTheme === 'dark') {
+    document.body.classList.add('dark-theme');
+  }
+
+  themeBtn.addEventListener('click', () => {
+    document.body.classList.toggle('dark-theme');
+    const isDark = document.body.classList.contains('dark-theme');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  });
+
 async function fetchWithAuth(url, opts = {}) {
     const token = localStorage.getItem("jwtToken");
     opts.headers = {

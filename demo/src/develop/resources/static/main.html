@@ -96,7 +96,9 @@
         <h1>Головна сторінка</h1>
         <button id="logoutButton" class="auth-button">Вийти</button>
 
+
         <button id="toggleThemeButton" class="theme-toggle-button">Змінити тему</button>
+
 
     </header>
 
@@ -150,25 +152,16 @@
                     <div id="calendar-week-view" style="display:none;"></div>
                     <div id="calendar-year-view" style="display:none;"></div>
                 </div>
-            </section>
-               <section id="poll-section">
-                  <h2>Опитування</h2>
-                       <form id="poll-form">
-                          <p>Який варіант вам більше подобається?</p>
-                            <label>
-                              <input type="radio" name="pollOption" value="option1" required />
-                            Варіант 1: Темна тема
-                          </label><br>
-                         <label>
-                        <input type="radio" name="pollOption" value="option2" />
-            Варіант 2: Світла тема
-        </label><br><br>
-        <button type="submit">Голосувати</button>
+            
+
+
+<section id="poll-section">
+    <h2>Опитування</h2>
+    <p id="poll-question-text">Немає активного опитування.</p>
+    <form id="poll-form" style="display:none">
+        <div id="poll-options-list"></div>
+        <button type="submit">Відправити відповідь</button>
     </form>
-    <div id="poll-result" style="display:none; margin-top: 10px;">
-        <strong>Дякуємо за голос!</strong>
-    </div>
-    
 </section>
 
            

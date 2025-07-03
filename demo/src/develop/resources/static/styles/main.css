@@ -250,3 +250,43 @@ body.dark-theme .theme-toggle-button {
   background-color: #66bb6a;
   color: black;
 }
+
+body.dark-theme .aboutme-card {
+  background-color: #2c2c2c;
+  color: #f1f1f1;
+  border-color: #4caf50;
+}
+
+body.dark-theme .aboutme-card h2 {
+  color: #66bb6a;
+}
+
+body.dark-theme #update-profile-info-section {
+  background-color: #2c2c2c;
+  border-color: #555;
+  color: #f1f1f1;
+}
+
+body.dark-theme #update-profile-info-section h2 {
+  color: #66bb6a;
+}
+
+body.dark-theme #editProfileForm input,
+body.dark-theme #editProfileForm textarea,
+body.dark-theme #editProfileForm select {
+  background-color: #383838;
+  color: #fff;
+  border: 1px solid #555555;
+}
+
+body.dark-theme #editProfileForm button {
+  background-color: #66bb6a;
+  color: black;
+}
+
+body.dark-theme #editProfileForm button:hover {
+  background-color: #81c784;
+}
+
+
+
