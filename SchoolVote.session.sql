@@ -1,5 +1,4 @@
-
-USE `PeopleAndEvents`;
+USE `SchoolVote`;
 
 
 INSERT INTO `schools` (`name`) VALUES 
