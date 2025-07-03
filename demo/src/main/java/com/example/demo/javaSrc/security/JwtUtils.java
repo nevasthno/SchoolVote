@@ -9,7 +9,6 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 @Component
 public class JwtUtils {
@@ -55,4 +54,9 @@ public class JwtUtils {
                    .getBody()
                    .getSubject();
     }
+
+    public long getJwtExpirationMs() {
+        return jwtExpirationMs;
+    }
+
 }

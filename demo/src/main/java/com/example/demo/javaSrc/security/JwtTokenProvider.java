@@ -12,6 +12,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
 
 @Component
 public class JwtTokenProvider {
@@ -59,4 +60,15 @@ public class JwtTokenProvider {
     public void setValidityMs(int validityMs) {
         this.validityMs = validityMs;
     }
+
+
+    public Cookie createJwtCookie(String token) {
+        Cookie cookie = new Cookie("JWT", token);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);       // працює тільки на HTTPS
+        cookie.setPath("/");          // доступно для всіх маршрутів
+        cookie.setMaxAge((int)(validityMs / 1000)); // секунд
+        return cookie;
+    }
+
 }
