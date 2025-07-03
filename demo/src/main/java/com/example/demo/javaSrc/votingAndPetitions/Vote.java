@@ -32,18 +32,20 @@ public class Vote {
     @Column(name = "created_by", nullable = false)
     private Long createdBy;
 
-    @Column(name="start_date", nullable = false)
+    @Column(name = "start_date", nullable = false)
     private Date startDate;
 
-    @Column(name="end_date", nullable = false)
+    @Column(name = "end_date", nullable = false)
     private Date endDate;
 
     @Column(name = "multiple_choice", nullable = false)
     private boolean multipleChoice;
 
-    public Vote() {}
+    public Vote() {
+    }
+
     public Vote(Long schoolId, Long classId, String title, String description,
-                  Long createdBy, Date startDate, Date endDate, boolean multipleChoice) {
+            Long createdBy, Date startDate, Date endDate, boolean multipleChoice) {
         this.schoolId = schoolId;
         this.classId = classId;
         this.title = title;
@@ -61,6 +63,7 @@ public class Vote {
     public Long getSchoolId() {
         return schoolId;
     }
+
     public void setSchoolId(Long schoolId) {
         this.schoolId = schoolId;
     }
@@ -68,6 +71,7 @@ public class Vote {
     public Long getClassId() {
         return classId;
     }
+
     public void setClassId(Long classId) {
         this.classId = classId;
     }
@@ -75,6 +79,7 @@ public class Vote {
     public String getTitle() {
         return title;
     }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -82,6 +87,7 @@ public class Vote {
     public String getDescription() {
         return description;
     }
+
     public void setDescription(String description) {
         this.description = description;
     }
@@ -89,6 +95,7 @@ public class Vote {
     public Long getCreatedBy() {
         return createdBy;
     }
+
     public void setCreatedBy(Long createdBy) {
         this.createdBy = createdBy;
     }
@@ -96,6 +103,7 @@ public class Vote {
     public Date getStartDate() {
         return startDate;
     }
+
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
@@ -103,6 +111,7 @@ public class Vote {
     public Date getEndDate() {
         return endDate;
     }
+
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
@@ -110,8 +119,9 @@ public class Vote {
     public boolean isMultipleChoice() {
         return multipleChoice;
     }
+
     public void setMultipleChoice(boolean multipleChoice) {
         this.multipleChoice = multipleChoice;
     }
-    
+
 }

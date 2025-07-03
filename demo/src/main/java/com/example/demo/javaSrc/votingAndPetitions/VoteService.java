@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class VoteService {
     private final VoteRepository votingRepository;
-    
+
     @Autowired
     public VoteService(VoteRepository votingRepository) {
         this.votingRepository = votingRepository;
@@ -69,5 +69,4 @@ public class VoteService {
         }).orElse(null);
     }
 
-    
 }

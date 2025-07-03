@@ -43,11 +43,13 @@ public class Petition {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    public  Status status;
+    public Status status;
 
-    public Petition() {}
-    public Petition(String title, String description, Long schoolId, Long classId, 
-                     Long createdBy, Date startDate, Date endDate, Status status) {
+    public Petition() {
+    }
+
+    public Petition(String title, String description, Long schoolId, Long classId,
+            Long createdBy, Date startDate, Date endDate, Status status) {
         this.schoolId = schoolId;
         this.classId = classId;
         this.title = title;
@@ -65,6 +67,7 @@ public class Petition {
     public String getTitle() {
         return title;
     }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -72,6 +75,7 @@ public class Petition {
     public String getDescription() {
         return description;
     }
+
     public void setDescription(String description) {
         this.description = description;
     }
@@ -79,6 +83,7 @@ public class Petition {
     public Long getSchoolId() {
         return schoolId;
     }
+
     public void setSchoolId(Long schoolId) {
         this.schoolId = schoolId;
     }
@@ -86,6 +91,7 @@ public class Petition {
     public Long getClassId() {
         return classId;
     }
+
     public void setClassId(Long classId) {
         this.classId = classId;
     }
@@ -93,6 +99,7 @@ public class Petition {
     public Long getCreatedBy() {
         return createdBy;
     }
+
     public void setCreatedBy(Long createdBy) {
         this.createdBy = createdBy;
     }
@@ -100,6 +107,7 @@ public class Petition {
     public Date getStartDate() {
         return startDate;
     }
+
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
@@ -107,6 +115,7 @@ public class Petition {
     public Date getEndDate() {
         return endDate;
     }
+
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
@@ -114,10 +123,9 @@ public class Petition {
     public Status getStatus() {
         return status;
     }
+
     public void setStatus(Status status) {
         this.status = status;
     }
 
-    
-    
 }

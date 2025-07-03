@@ -13,39 +13,39 @@ public class PetitionService {
         this.petitionsRepository = petitionsRepository;
     }
 
-    public Petitions createPetition(Petitions petition) {
+    public Petition createPetition(Petition petition) {
         return petitionsRepository.save(petition);
     }
 
-    public Petitions getPetitionById(Long id) {
+    public Petition getPetitionById(Long id) {
         return petitionsRepository.findById(id).orElse(null);
     }
 
-    public List<Petitions> getPetitionsByClassAndSchool(Long classId, Long schoolId) {
+    public List<Petition> getPetitionByClassAndSchool(Long classId, Long schoolId) {
         return petitionsRepository.findByClassIdAndSchoolId(classId, schoolId);
     }
 
-    public List<Petitions> getPetitionsBySchool(Long schoolId) {
+    public List<Petition> getPetitionBySchool(Long schoolId) {
         return petitionsRepository.findBySchoolId(schoolId);
     }
 
-    public List<Petitions> getPetitionsByTitle(String title) {
+    public List<Petition> getPetitionByTitle(String title) {
         return petitionsRepository.findByTitle(title);
     }
 
-    public List<Petitions> getPetitionsByDescription(String description) {
+    public List<Petition> getPetitionByDescription(String description) {
         return petitionsRepository.findByDescription(description);
     }
 
-    public List<Petitions> getPetitionsByCreatedBy(Long createdBy) {
+    public List<Petition> getPetitionByCreatedBy(Long createdBy) {
         return petitionsRepository.findByCreatedBy(createdBy);
     }
 
-    public List<Petitions> getPetitionsByStartDateBetween(Date startDate, Date endDate) {
+    public List<Petition> getPetitionByStartDateBetween(Date startDate, Date endDate) {
         return petitionsRepository.findByStartDateBetween(startDate, endDate);
     }
 
-    public List<Petitions> getAllPetitions() {
+    public List<Petition> getAllPetition() {
         return petitionsRepository.findAll();
     }
 
@@ -53,7 +53,7 @@ public class PetitionService {
         petitionsRepository.deleteById(id);
     }
 
-    public Petitions updatePetition(Long id, Petitions updatedPetition) {
+    public Petition updatePetition(Long id, Petition updatedPetition) {
         return petitionsRepository.findById(id).map(existing -> {
             existing.setSchoolId(updatedPetition.getSchoolId());
             existing.setClassId(updatedPetition.getClassId());
@@ -67,6 +67,4 @@ public class PetitionService {
         }).orElse(null);
     }
 
-
-       
 }
