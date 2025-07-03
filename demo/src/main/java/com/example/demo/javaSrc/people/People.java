@@ -1,7 +1,6 @@
 package com.example.demo.javaSrc.people;
 
 import java.sql.Date;
-import java.util.Optional;
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
