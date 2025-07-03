@@ -124,7 +124,7 @@ public class ApiController {
         return all;
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'DIRECTOR')")
     @PostMapping("/users")
     public ResponseEntity<People> createUser(
             @RequestBody People newUser,
@@ -197,19 +197,19 @@ public class ApiController {
         return email != null && email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'DIRECTOR')")
     @GetMapping("/loadUsers")
     public List<People> getAllUsers() {
         return peopleService.getAllPeople();
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'DIRECTOR')")
     @GetMapping("/users/role/{role}")
     public List<People> getUsersByRole(@PathVariable String role) {
         return peopleService.getPeopleByRole(role);
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'DIRECTOR')")
     @PutMapping("/users/{id}")
     public ResponseEntity<People> updateUserByTeacher(@PathVariable Long id, @RequestBody People updatedData) {
         People updated = peopleService.updateProfile(id, updatedData);
