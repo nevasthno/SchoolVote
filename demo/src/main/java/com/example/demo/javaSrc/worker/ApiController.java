@@ -2,7 +2,6 @@ package com.example.demo.javaSrc.worker;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.javaSrc.people.People;
 import com.example.demo.javaSrc.people.PeopleService;
-import com.example.demo.school.School;
-import com.example.demo.school.SchoolService;
-import com.example.demo.school.SchoolClass;
-import com.example.demo.school.ClassService;
+import com.example.demo.javaSrc.school.School;
+import com.example.demo.javaSrc.school.SchoolService;
+import com.example.demo.javaSrc.school.SchoolClass;
+import com.example.demo.javaSrc.school.ClassService;
 
 @RestController
 @RequestMapping("/api")
@@ -125,9 +124,7 @@ public class ApiController {
         return all;
     }
 
-
-
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'DIRECTOR')")
     @PostMapping("/users")
     public ResponseEntity<People> createUser(
             @RequestBody People newUser,
@@ -145,31 +142,6 @@ public class ApiController {
 
         return ResponseEntity.ok(peopleService.createPeople(newUser));
     }
-
-   
-    @PreAuthorize("hasRole('TEACHER')")
-    @GetMapping("/stats")
-    public Map<String, Long> getStats(
-            Authentication auth,
-            @RequestParam(required = false) Long schoolId,
-            @RequestParam(required = false) Long classId) {
-
-        People me = currentUser(auth);
-        Long sch = schoolId != null ? schoolId : me.getSchoolId();
-        Long cls = classId  != null ? classId  : me.getClassId();
-
-        long totalTasks     = taskService.getBySchoolAndClass(sch, cls).size();
-        long completedTasks = taskService.getBySchoolAndClass(sch, cls)
-                                         .stream().filter(Task::isCompleted).count();
-        long totalEvents    = eventService.getBySchoolAndClass(sch, cls).size();
-
-        return Map.of(
-            "totalTasks",     totalTasks,
-            "completedTasks", completedTasks,
-            "totalEvents",    totalEvents
-        );
-    }
-
     
     @GetMapping("/me")
     public ResponseEntity<People> getMyProfile(Authentication auth) {
@@ -225,19 +197,19 @@ public class ApiController {
         return email != null && email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'DIRECTOR')")
     @GetMapping("/loadUsers")
     public List<People> getAllUsers() {
         return peopleService.getAllPeople();
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'DIRECTOR')")
     @GetMapping("/users/role/{role}")
     public List<People> getUsersByRole(@PathVariable String role) {
         return peopleService.getPeopleByRole(role);
     }
 
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize("hasAnyRole('TEACHER', 'DIRECTOR')")
     @PutMapping("/users/{id}")
     public ResponseEntity<People> updateUserByTeacher(@PathVariable Long id, @RequestBody People updatedData) {
         People updated = peopleService.updateProfile(id, updatedData);

@@ -13,7 +13,7 @@ public class People {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    public enum Role { TEACHER, STUDENT, PARENT }
+    public enum Role { TEACHER, STUDENT, PARENT, DIRECTOR }
 
     @Column(name = "school_id", nullable = false)
     private Long schoolId;
