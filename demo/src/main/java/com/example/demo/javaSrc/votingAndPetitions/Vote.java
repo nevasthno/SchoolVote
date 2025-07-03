@@ -11,7 +11,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "voting")
-public class Voting {
+public class Vote {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,8 +41,8 @@ public class Voting {
     @Column(name = "multiple_choice", nullable = false)
     private boolean multipleChoice;
 
-    public Voting() {}
-    public Voting(Long schoolId, Long classId, String title, String description,
+    public Vote() {}
+    public Vote(Long schoolId, Long classId, String title, String description,
                   Long createdBy, Date startDate, Date endDate, boolean multipleChoice) {
         this.schoolId = schoolId;
         this.classId = classId;

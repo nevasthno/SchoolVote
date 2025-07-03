@@ -14,7 +14,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "petitions")
-public class Petitions {
+public class Petition {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,8 +45,8 @@ public class Petitions {
     @Column(name = "status", nullable = false)
     public  Status status;
 
-    public Petitions() {}
-    public Petitions(String title, String description, Long schoolId, Long classId, 
+    public Petition() {}
+    public Petition(String title, String description, Long schoolId, Long classId, 
                      Long createdBy, Date startDate, Date endDate, Status status) {
         this.schoolId = schoolId;
         this.classId = classId;

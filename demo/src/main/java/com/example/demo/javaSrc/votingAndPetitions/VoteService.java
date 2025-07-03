@@ -7,47 +7,47 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class VotingService {
-    private final VotingRepository votingRepository;
+public class VoteService {
+    private final VoteRepository votingRepository;
     
     @Autowired
-    public VotingService(VotingRepository votingRepository) {
+    public VoteService(VoteRepository votingRepository) {
         this.votingRepository = votingRepository;
     }
 
-    public Voting createVoting(Voting voting) {
+    public Vote createVoting(Vote voting) {
         return votingRepository.save(voting);
     }
 
-    public Voting getVotingById(Long id) {
+    public Vote getVotingById(Long id) {
         return votingRepository.findById(id).orElse(null);
     }
 
-    public List<Voting> getVotingsByClassAndSchool(Long classId, Long schoolId) {
+    public List<Vote> getVotingsByClassAndSchool(Long classId, Long schoolId) {
         return votingRepository.findByClassIdAndSchoolId(classId, schoolId);
     }
 
-    public List<Voting> getVotingsBySchool(Long schoolId) {
+    public List<Vote> getVotingsBySchool(Long schoolId) {
         return votingRepository.findBySchoolId(schoolId);
     }
 
-    public List<Voting> getVotingsByTitle(String title) {
+    public List<Vote> getVotingsByTitle(String title) {
         return votingRepository.findByTitle(title);
     }
 
-    public List<Voting> getVotingsByDescription(String description) {
+    public List<Vote> getVotingsByDescription(String description) {
         return votingRepository.findByDescription(description);
     }
 
-    public List<Voting> getVotingsByCreatedBy(Long createdBy) {
+    public List<Vote> getVotingsByCreatedBy(Long createdBy) {
         return votingRepository.findByCreatedBy(createdBy);
     }
 
-    public List<Voting> getVotingsByStartDateBetween(Date startDate, Date endDate) {
+    public List<Vote> getVotingsByStartDateBetween(Date startDate, Date endDate) {
         return votingRepository.findByStartDateBetween(startDate, endDate);
     }
 
-    public List<Voting> getAllVotings() {
+    public List<Vote> getAllVotings() {
         return votingRepository.findAll();
     }
 
@@ -55,7 +55,7 @@ public class VotingService {
         votingRepository.deleteById(id);
     }
 
-    public Voting updateVoting(Long id, Voting updatedVoting) {
+    public Vote updateVoting(Long id, Vote updatedVoting) {
         return votingRepository.findById(id).map(existing -> {
             existing.setSchoolId(updatedVoting.getSchoolId());
             existing.setClassId(updatedVoting.getClassId());
