@@ -30,7 +30,6 @@ import com.example.demo.javaSrc.school.ClassService;
 @RequestMapping("/api")
 public class ApiController {
 
-
     private final PeopleService peopleService;
     private final PasswordEncoder passwordEncoder;
     private final SchoolService schoolService;
@@ -42,21 +41,21 @@ public class ApiController {
 
     @Autowired
     public ApiController(
-                         PeopleService peopleService,
-                         PasswordEncoder passwordEncoder,
-                         SchoolService schoolService,
-                         ClassService classService,
-                         VoteRepository voteRepository,
-                         VoteService voteService,
-                         PetitionService petitionService,
-                         PetitionRepository petitionRepository) {
-        
-        this.peopleService   = peopleService;
+            PeopleService peopleService,
+            PasswordEncoder passwordEncoder,
+            SchoolService schoolService,
+            ClassService classService,
+            VoteRepository voteRepository,
+            VoteService voteService,
+            PetitionService petitionService,
+            PetitionRepository petitionRepository) {
+
+        this.peopleService = peopleService;
         this.passwordEncoder = passwordEncoder;
-        this.schoolService   = schoolService;
-        this.classService    = classService;
-        this.voteRepository  = voteRepository;
-        this.voteService     = voteService;
+        this.schoolService = schoolService;
+        this.classService = classService;
+        this.voteRepository = voteRepository;
+        this.voteService = voteService;
         this.petitionService = petitionService;
         this.petitionRepository = petitionRepository;
     }
@@ -79,7 +78,6 @@ public class ApiController {
         return classService.getBySchoolId(schoolId);
     }
 
-    
     @GetMapping("/teachers")
     public List<People> getTeachers(
             Authentication auth,
@@ -101,10 +99,8 @@ public class ApiController {
         }
 
         if (name != null && !name.isBlank()) {
-            teachers.removeIf(p -> 
-                !p.getFirstName().toLowerCase().contains(name.toLowerCase()) &&
-                !p.getLastName().toLowerCase().contains(name.toLowerCase())
-            );
+            teachers.removeIf(p -> !p.getFirstName().toLowerCase().contains(name.toLowerCase()) &&
+                    !p.getLastName().toLowerCase().contains(name.toLowerCase()));
         }
         return teachers;
     }
@@ -131,9 +127,9 @@ public class ApiController {
 
         if (name != null && !name.isBlank()) {
             all = all.stream()
-                     .filter(p -> p.getFirstName().contains(name)
-                               || p.getLastName().contains(name))
-                     .toList();
+                    .filter(p -> p.getFirstName().contains(name)
+                            || p.getLastName().contains(name))
+                    .toList();
         }
         return all;
     }
@@ -156,7 +152,7 @@ public class ApiController {
 
         return ResponseEntity.ok(peopleService.createPeople(newUser));
     }
-    
+
     @GetMapping("/me")
     public ResponseEntity<People> getMyProfile(Authentication auth) {
         String email = auth.getName();
@@ -203,7 +199,7 @@ public class ApiController {
             currentUser.setPassword(passwordEncoder.encode(updatedData.getPassword()));
         }
         Long userId = currentUser.getId();
-        People updated = peopleService.updateUser(userId, currentUser); 
+        People updated = peopleService.updateUser(userId, currentUser);
         return ResponseEntity.ok(updated);
     }
 
@@ -235,21 +231,34 @@ public class ApiController {
     }
 
     @PostMapping("/createVote")
-    public ResponseEntity<Vote> createVote(@RequestBody Vote voteRB) {
+    public ResponseEntity<Vote> createVote(@RequestBody Vote voteRB, Authentication auth) {
+        People user = currentUser(auth);
+        if (user == null) {
+            return ResponseEntity.status(401).build();
+        }
         Vote vote = new Vote();
-
-        vote.setSchoolId(voteRB.getSchoolId());
+        vote.setSchoolId(voteRB.getSchoolId() != null ? voteRB.getSchoolId() : user.getSchoolId());
         vote.setClassId(voteRB.getClassId());
         vote.setTitle(voteRB.getTitle());
         vote.setDescription(voteRB.getDescription());
-        vote.setCreatedBy(voteRB.getCreatedBy());
+        vote.setCreatedBy(user.getId());
         vote.setStartDate(voteRB.getStartDate());
         vote.setEndDate(voteRB.getEndDate());
         vote.setMultipleChoice(voteRB.isMultipleChoice());
-
         voteRepository.save(vote);
-
         return ResponseEntity.ok(vote);
+    }
+
+    @GetMapping("/votes")
+    public List<Vote> getVotes(@RequestParam(required = false) Long schoolId,
+            @RequestParam(required = false) Long classId) {
+        if (classId != null && schoolId != null) {
+            return voteService.getVotingsByClassAndSchool(classId, schoolId);
+        } else if (schoolId != null) {
+            return voteService.getVotingsBySchool(schoolId);
+        } else {
+            return voteService.getAllVotings();
+        }
     }
 
     @PreAuthorize("hasRole('STUDENT')")
@@ -274,20 +283,18 @@ public class ApiController {
         return ResponseEntity.ok(petition);
     }
 
-        @PostMapping("/petitions/{id}/vote")
-        @PreAuthorize("hasRole('STUDENT')")
-        public ResponseEntity<?> voteForPetition(@PathVariable Long id,
-                                                @RequestParam("vote") PetitionVote.VoteVariant vote,
-                                                @AuthenticationPrincipal People user) {
-            try {
-                Long studentId = user.getId(); 
-                petitionService.vote(id, studentId, vote);
-                return ResponseEntity.ok("Vote recorded");
-            } catch (Exception e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
-            }
+    @PostMapping("/petitions/{id}/vote")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<?> voteForPetition(@PathVariable Long id,
+            @RequestParam("vote") PetitionVote.VoteVariant vote,
+            @AuthenticationPrincipal People user) {
+        try {
+            Long studentId = user.getId();
+            petitionService.vote(id, studentId, vote);
+            return ResponseEntity.ok("Vote recorded");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
 
-    
-    
 }
