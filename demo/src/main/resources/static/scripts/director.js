@@ -31,18 +31,18 @@ function submitPoll() {
 
 
 
-  const themeToggleBtn = document.getElementById('toggleThemeButton');
-  const isDark = localStorage.getItem('theme') === 'dark';
+const themeToggleBtn = document.getElementById('toggleThemeButton');
+const isDark = localStorage.getItem('theme') === 'dark';
 
-  if (isDark) {
+if (isDark) {
     document.body.classList.add('dark-theme');
-  }
+}
 
-  themeToggleBtn.addEventListener('click', () => {
+themeToggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-theme');
     const isNowDark = document.body.classList.contains('dark-theme');
     localStorage.setItem('theme', isNowDark ? 'dark' : 'light');
-  });
+});
 
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -162,86 +162,6 @@ document.addEventListener("DOMContentLoaded", () => {
             } catch (e) {
                 console.error("Помилка створення користувача:", e);
                 alert("Не вдалося створити користувача.");
-            }
-        });
-    }
-
-
-    const createTaskBtn = document.getElementById("create-task-button");
-    if (createTaskBtn) {
-        createTaskBtn.addEventListener("click", async () => {
-            const title = document.getElementById("task-title").value.trim();
-            const content = document.getElementById("task-content").value.trim();
-            const deadlineStr = document.getElementById("task-deadline").value;
-            const schoolId = document.getElementById("school-select")?.value;
-            const classId = document.getElementById("class-select")?.value;
-
-            if (!title || !deadlineStr || !schoolId) {
-                alert("Вкажіть назву, дедлайн та школу.");
-                return;
-            }
-
-            try {
-                const payload = {
-                    title,
-                    content,
-                    deadline: new Date(deadlineStr).toISOString(),
-                    schoolId: Number(schoolId)
-                };
-                if (classId) payload.classId = Number(classId);
-
-                const res = await fetchWithAuth("/api/tasks", {
-                    method: "POST",
-                    body: JSON.stringify(payload)
-                });
-                if (!res.ok) throw new Error(res.status);
-                alert("Завдання додано!");
-            } catch (e) {
-                console.error("Помилка додавання завдання:", e);
-                alert("Не вдалося додати завдання.");
-            }
-        });
-    }
-
-
-    const createEventBtn = document.getElementById("create-event-button");
-    if (createEventBtn) {
-        createEventBtn.addEventListener("click", async () => {
-            const userId = localStorage.getItem("userId");
-            const title = document.getElementById("event-title").value.trim();
-            const content = document.getElementById("event-content").value.trim();
-            const loc = document.getElementById("event-location").value.trim();
-            const startStr = document.getElementById("event-start").value;
-            const duration = parseInt(document.getElementById("event-duration").value, 10);
-            const type = document.getElementById("event-type").value;
-            const schoolId = document.getElementById("school-select")?.value;
-            const classId = document.getElementById("class-select")?.value;
-
-            if (!title || !startStr || !duration || !type || !schoolId) {
-                alert("Вкажіть обов’язкові поля та школу.");
-                return;
-            }
-
-            try {
-                const payload = {
-                    title,
-                    content,
-                    location_or_link: loc,
-                    start_event: new Date(startStr).toISOString(),
-                    duration,
-                    event_type: type,
-                    schoolId: Number(schoolId)
-                };
-                if (classId) payload.classId = Number(classId);
-
-                await fetchWithAuth("/api/events", {
-                    method: "POST",
-                    body: JSON.stringify(payload)
-                });
-                alert("Подію створено!");
-            } catch (e) {
-                console.error("Помилка створення події:", e);
-                alert("Не вдалося створити подію.");
             }
         });
     }
@@ -385,6 +305,86 @@ async function loadUsers() {
     } catch (e) {
         console.error("Помилка завантаження користувачів:", e);
     }
+}
+
+function openEditForm(user) {
+    document.getElementById("edit-user-section").style.display = "block";
+    document.getElementById("edit-user-id").value = user.id;
+    document.getElementById("edit-firstName").value = user.firstName;
+    document.getElementById("edit-lastName").value = user.lastName;
+    document.getElementById("edit-aboutMe").value = user.aboutMe;
+    document.getElementById("edit-dateOfBirth").value = user.dateOfBirth;
+}
+
+async function loadProfile() {
+    try {
+        const res = await fetchWithAuth("/api/me");
+        if (!res.ok) throw new Error(res.status);
+
+        const user = await res.json();
+        document.getElementById("profile-firstName").textContent = user.firstName || "-";
+        document.getElementById("profile-lastName").textContent = user.lastName || "-";
+        document.getElementById("profile-aboutMe").textContent = user.aboutMe || "-";
+        document.getElementById("profile-dateOfBirth").textContent = user.dateOfBirth || "-";
+        document.getElementById("profile-email").textContent = user.email || "-";
+        document.getElementById("profile-role").textContent = user.role || "-";
+
+        document.getElementById("edit-firstName").value = user.firstName || "";
+        document.getElementById("edit-lastName").value = user.lastName || "";
+        document.getElementById("edit-aboutMe").value = user.aboutMe || "";
+        document.getElementById("edit-dateOfBirth").value = user.dateOfBirth || "";
+        document.getElementById("edit-email").value = user.email || "";
+    } catch (e) {
+        console.error("Помилка завантаження профілю", e);
+        alert("Не вдалося завантажити профіль. Спробуйте ще раз.");
+    }
+}
+
+async function updateProfile(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData);
+
+    if (data.password !== data.confirmPassword) {
+        alert("Паролі не збігаються!");
+        return;
+    }
+
+    delete data.confirmPassword;
+    if (!data.password) delete data.password;
+
+    Object.keys(data).forEach(key => {
+        if (data[key] === "") delete data[key];
+    });
+
+    try {
+        const res = await fetchWithAuth("/api/me", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+        });
+        if (!res.ok) throw new Error(res.status);
+        alert("Профіль успішно оновлено!");
+        loadProfile();
+    } catch (e) {
+        console.error("Помилка оновлення профілю", e);
+        alert("Не вдалося оновити профіль.");
+    }
+}
+li.textContent = `${user.firstName} ${user.lastName} (${user.email})`;
+
+const editBtn = document.createElement("button");
+editBtn.textContent = "Змінити профіль";
+editBtn.style.marginLeft = "10px";
+editBtn.addEventListener("click", () => openEditForm(user));
+
+li.appendChild(editBtn);
+userList.appendChild(li);
+        });
+    } catch (e) {
+    console.error("Помилка завантаження користувачів:", e);
+}
 }
 
 function openEditForm(user) {

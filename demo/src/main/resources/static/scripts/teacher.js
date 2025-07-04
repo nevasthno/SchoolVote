@@ -1,11 +1,3 @@
-
-
-
-
-
-
-
-
 // Tab/page switching logic
 function addPollOption() {
     const input = document.createElement('input');
