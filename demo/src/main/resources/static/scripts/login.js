@@ -33,7 +33,7 @@ document.getElementById("loginButton").addEventListener("click", async () => {
     } else if (realRole === "PARENT") {
       window.location.href = "parent.html";
     } else if (realRole === "STUDENT") {
-      window.location.href = "main.html";
+      window.location.href = "student.html";
     } else if (realRole === "DIRECTOR") {
       window.location.href = "director.html";
     }
