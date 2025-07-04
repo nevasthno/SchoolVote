@@ -1,17 +1,30 @@
-package com.example.demo.javaSrc.votingAndPetitions;
+package com.example.demo.javaSrc.petitions;
 
 import java.util.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "voting")
-public class Vote {
+@Table(name = "petitions")
+public class Petition {
+
+    public enum Status {
+        OPEN, CLOSED
+    }
+
+    public enum DirectorsDecision {
+        APPROVED, REJECTED, PENDING,NOT_ENOUGH_VOTING
+    }
+    public enum VariantsOfVote {
+        YES, NO, DID_NOT_VOTE
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,14 +51,24 @@ public class Vote {
     @Column(name = "end_date", nullable = false)
     private Date endDate;
 
-    @Column(name = "multiple_choice", nullable = false)
-    private boolean multipleChoice;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    public Status status;
 
-    public Vote() {
+    @Column(name = "current_positive_vote_count", nullable = false)
+    private int current_positive_vote_count = 0;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "directors_decision", nullable = false)
+    public DirectorsDecision directorsDecision  = DirectorsDecision.NOT_ENOUGH_VOTING;
+
+
+
+    public Petition() {
     }
 
-    public Vote(Long schoolId, Long classId, String title, String description,
-            Long createdBy, Date startDate, Date endDate, boolean multipleChoice) {
+    public Petition(String title, String description, Long schoolId, Long classId,
+            Long createdBy, Date startDate, Date endDate, Status status) {
         this.schoolId = schoolId;
         this.classId = classId;
         this.title = title;
@@ -53,27 +76,11 @@ public class Vote {
         this.createdBy = createdBy;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.multipleChoice = multipleChoice;
+        this.status = status;
     }
 
     public Long getId() {
         return id;
-    }
-
-    public Long getSchoolId() {
-        return schoolId;
-    }
-
-    public void setSchoolId(Long schoolId) {
-        this.schoolId = schoolId;
-    }
-
-    public Long getClassId() {
-        return classId;
-    }
-
-    public void setClassId(Long classId) {
-        this.classId = classId;
     }
 
     public String getTitle() {
@@ -90,6 +97,22 @@ public class Vote {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Long getSchoolId() {
+        return schoolId;
+    }
+
+    public void setSchoolId(Long schoolId) {
+        this.schoolId = schoolId;
+    }
+
+    public Long getClassId() {
+        return classId;
+    }
+
+    public void setClassId(Long classId) {
+        this.classId = classId;
     }
 
     public Long getCreatedBy() {
@@ -116,12 +139,25 @@ public class Vote {
         this.endDate = endDate;
     }
 
-    public boolean isMultipleChoice() {
-        return multipleChoice;
+    public Status getStatus() {
+        return status;
     }
 
-    public void setMultipleChoice(boolean multipleChoice) {
-        this.multipleChoice = multipleChoice;
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
+    public int getCurrentVoteCount() {
+        return current_positive_vote_count;
+    }
+    public void setCurrentVoteCount(int current_positive_vote_count) {
+        this.current_positive_vote_count = current_positive_vote_count;
+    }
+
+    public DirectorsDecision getDirectorsDecision() {
+        return directorsDecision;
+    }
+    public void setDirectorsDecision(DirectorsDecision directors_decision) {
+        this.directorsDecision = directors_decision;
+    }    
 }
