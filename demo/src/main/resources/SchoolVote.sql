@@ -49,6 +49,20 @@ CREATE TABLE IF NOT EXISTS `petitions` (
   `end_date` DATETIME NOT NULL,
   `created_by` BIGINT NOT NULL,
   `school_id` BIGINT NOT NULL,
-  `class_id` BIGINT NULL, 
-  `status` ENUM('OPEN', 'CLOSED', 'APPROVED') NOT NULL DEFAULT 'OPEN'
+  `class_id` BIGINT NULL,
+  `status` ENUM('OPEN', 'CLOSED') NOT NULL DEFAULT 'OPEN',
+  `current_positive_vote_count` INT NOT NULL DEFAULT 0,
+  `directors_decision` ENUM('APPROVED', 'REJECTED', 'PENDING', 'NOT_ENOUGH_VOTING') NOT NULL DEFAULT 'NOT_ENOUGH_VOTING'
 ) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS `petition_votes` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `petition_id` BIGINT NOT NULL,
+  `student_id` BIGINT NOT NULL,
+  `vote` ENUM('YES', 'NO') NOT NULL,
+  `voted_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (`petition_id`, `student_id`),
+  FOREIGN KEY (`petition_id`) REFERENCES `petitions`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`student_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB;
+

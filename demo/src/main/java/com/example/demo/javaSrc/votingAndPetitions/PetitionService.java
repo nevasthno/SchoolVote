@@ -1,60 +1,81 @@
 package com.example.demo.javaSrc.votingAndPetitions;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.example.demo.javaSrc.people.PeopleRepository;
+import jakarta.transaction.Transactional;
 
 @Service
 public class PetitionService {
-    private final PetitionRepository petitionsRepository;
 
-    public PetitionService(PetitionRepository petitionsRepository) {
-        this.petitionsRepository = petitionsRepository;
+    private final PeopleRepository peopleRepository;
+    @Autowired
+    private final PetitionRepository petitionRepository;
+    @Autowired
+    private PetitionVoteRepository petitionVoteRepository;
+
+    public PetitionService(PetitionRepository petitionRepository, PeopleRepository peopleRepository) {
+        this.petitionRepository = petitionRepository;
+        this.peopleRepository = peopleRepository;
     }
 
     public Petition createPetition(Petition petition) {
-        return petitionsRepository.save(petition);
+        return petitionRepository.save(petition);
     }
 
     public Petition getPetitionById(Long id) {
-        return petitionsRepository.findById(id).orElse(null);
+        return petitionRepository.findById(id).orElse(null);
     }
 
     public List<Petition> getPetitionByClassAndSchool(Long classId, Long schoolId) {
-        return petitionsRepository.findByClassIdAndSchoolId(classId, schoolId);
+        return petitionRepository.findByClassIdAndSchoolId(classId, schoolId);
     }
 
     public List<Petition> getPetitionBySchool(Long schoolId) {
-        return petitionsRepository.findBySchoolId(schoolId);
+        return petitionRepository.findBySchoolId(schoolId);
     }
 
     public List<Petition> getPetitionByTitle(String title) {
-        return petitionsRepository.findByTitle(title);
+        return petitionRepository.findByTitle(title);
     }
 
     public List<Petition> getPetitionByDescription(String description) {
-        return petitionsRepository.findByDescription(description);
+        return petitionRepository.findByDescription(description);
     }
 
     public List<Petition> getPetitionByCreatedBy(Long createdBy) {
-        return petitionsRepository.findByCreatedBy(createdBy);
+        return petitionRepository.findByCreatedBy(createdBy);
     }
 
     public List<Petition> getPetitionByStartDateBetween(Date startDate, Date endDate) {
-        return petitionsRepository.findByStartDateBetween(startDate, endDate);
+        return petitionRepository.findByStartDateBetween(startDate, endDate);
     }
 
     public List<Petition> getAllPetition() {
-        return petitionsRepository.findAll();
+        return petitionRepository.findAll();
     }
 
     public void deletePetition(Long id) {
-        petitionsRepository.deleteById(id);
+
+        petitionRepository.deleteById(id);
     }
 
+    public List<Petition> getPetitionByStatus(Petition.Status status) {
+        return petitionRepository.findByStatus(status);
+    }
+
+    public List<Petition> getPetitionByDirectorsDecision(Petition.DirectorsDecision directorsDecision) {
+        return petitionRepository.findByDirectorsDecision(directorsDecision);
+    }
+
+
     public Petition updatePetition(Long id, Petition updatedPetition) {
-        return petitionsRepository.findById(id).map(existing -> {
+        return petitionRepository.findById(id).map(existing -> {
             existing.setSchoolId(updatedPetition.getSchoolId());
             existing.setClassId(updatedPetition.getClassId());
             existing.setTitle(updatedPetition.getTitle());
@@ -63,8 +84,59 @@ public class PetitionService {
             existing.setStartDate(updatedPetition.getStartDate());
             existing.setEndDate(updatedPetition.getEndDate());
             existing.setStatus(updatedPetition.getStatus());
-            return petitionsRepository.save(existing);
+            existing.setCurrentVoteCount(updatedPetition.getCurrentVoteCount());
+            existing.setDirectorsDecision(updatedPetition.getDirectorsDecision());
+            return petitionRepository.save(existing);
         }).orElse(null);
+    }
+
+    private int getTotalStudentsForPetition(Petition petition) {
+        if (petition.getClassId() != null) {
+            // шукаємо всіх студентів конкретного класу
+            return peopleRepository.findByRoleAndSchoolIdAndClassId("STUDENT", petition.getSchoolId(), petition.getClassId()).size();
+        } else {
+            // шукаємо всіх студентів школи
+            return peopleRepository.findByRoleAndSchoolId("STUDENT", petition.getSchoolId()).size();
+        }
+    }
+
+    
+    @Transactional
+    public void vote(Long petitionId, Long studentId, PetitionVote.VoteVariant vote) throws Exception {
+        Petition petition = petitionRepository.findById(petitionId)
+            .orElseThrow(() -> new Exception("Petition not found"));
+
+        if (LocalDateTime.now().isAfter(petition.getEndDate().toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime())) {
+            throw new Exception("Petition already ended");
+        }
+
+
+        boolean alreadyVoted = petitionVoteRepository.existsByPetitionIdAndStudentId(petitionId, studentId);
+        if (alreadyVoted) {
+            throw new Exception("Student already voted for this petition");
+        }
+
+        PetitionVote petitionVote = new PetitionVote();
+        petitionVote.setPetition(petition);
+        petitionVote.setStudentId(studentId);
+        petitionVote.setVote(vote);
+        petitionVote.setVotedAt(LocalDateTime.now());
+        petitionVoteRepository.save(petitionVote);
+
+        if (vote == PetitionVote.VoteVariant.YES) {
+            int newCount = petition.getCurrentVoteCount() + 1;
+            petition.setCurrentVoteCount(newCount);
+
+            // Перевірка, чи досягнуто 50%+1 учасників
+            int totalStudents = getTotalStudentsForPetition(petition);
+            if (newCount >= (totalStudents / 2) + 1) {
+                petition.setDirectorsDecision(Petition.DirectorsDecision.PENDING);
+            }
+
+            petitionRepository.save(petition);
+        }
     }
 
 }

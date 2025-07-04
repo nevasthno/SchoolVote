@@ -21,5 +21,9 @@ public interface PetitionRepository extends JpaRepository<Petition, Long> {
 
     List<Petition> findByCreatedBy(Long createdBy);
 
+    List<Petition> findByStatus(Petition.Status status);
+
     List<Petition> findByStartDateBetween(Date startDate, Date endDate);
+
+    List<Petition> findByDirectorsDecision(Petition.DirectorsDecision directorsDecision);
 }

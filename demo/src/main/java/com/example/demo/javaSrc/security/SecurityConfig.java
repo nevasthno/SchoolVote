@@ -21,40 +21,40 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(JwtUtils jwtUtils,
-                                                           UserDetailsService uds) {
+            UserDetailsService uds) {
         return new JwtAuthenticationFilter(jwtUtils, uds);
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   JwtAuthenticationFilter jwtFilter) throws Exception {
+            JwtAuthenticationFilter jwtFilter) throws Exception {
         http
-          .csrf(csrf -> csrf.disable())
-          .authorizeHttpRequests(auth -> auth
-            .requestMatchers(
-                "/", "/login.html", "/main.html", "/teacher.html", "/parent.html",
-                "/styles/**", "/scripts/**", "/favicon.ico", "/profile.html", "/me"
-            ).permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
-            .requestMatchers(HttpMethod.POST,
-                "/api/users",
-                "/api/tasks",
-                "/api/events"
-            ).hasRole("TEACHER")
-            .requestMatchers(HttpMethod.PUT, "/api/users/**").hasRole("TEACHER")
-            .anyRequest().authenticated()
-          )
-          .addFilterBefore(jwtFilter,
-                           UsernamePasswordAuthenticationFilter.class)
-          .formLogin(form -> form
-              .loginPage("/login.html")
-              .permitAll()
-          );
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/", "/login.html",
+                                "/styles/**", "/scripts/**", "/favicon.ico", "/profile.html", "/me")
+                        .permitAll()
+                        .requestMatchers("/teacher.html").hasRole("TEACHER")
+                        .requestMatchers("/student.html").hasRole("STUDENT")
+                        .requestMatchers("/parent.html").hasRole("PARENT")
+                        .requestMatchers("/director.html").hasRole("DIRECTOR")
+                        .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/users")
+                        .hasRole("TEACHER")
+                        .requestMatchers(HttpMethod.PUT, "/api/users/**").hasRole("TEACHER")
+                        .anyRequest().authenticated())
+                .addFilterBefore(jwtFilter,
+                        UsernamePasswordAuthenticationFilter.class)
+                .formLogin(form -> form
+                        .loginPage("/login.html")
+                        .permitAll());
         return http.build();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) 
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg)
             throws Exception {
         return cfg.getAuthenticationManager();
     }
@@ -62,12 +62,11 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService(PeopleRepository repo) {
         return username -> repo.findByEmail(username)
-            .map(person -> User.withUsername(person.getEmail())
-                               .password(person.getPassword())
-                               .authorities("ROLE_" + person.getRole())
-                               .build()
-            )
-            .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+                .map(person -> User.withUsername(person.getEmail())
+                        .password(person.getPassword())
+                        .authorities("ROLE_" + person.getRole())
+                        .build())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
     @Bean

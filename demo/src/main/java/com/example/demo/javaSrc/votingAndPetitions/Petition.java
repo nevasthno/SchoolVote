@@ -1,6 +1,5 @@
 package com.example.demo.javaSrc.votingAndPetitions;
 
-import java.io.ObjectInputFilter.Status;
 import java.util.Date;
 
 import jakarta.persistence.Column;
@@ -15,6 +14,17 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "petitions")
 public class Petition {
+
+    public enum Status {
+        OPEN, CLOSED
+    }
+
+    public enum DirectorsDecision {
+        APPROVED, REJECTED, PENDING,NOT_ENOUGH_VOTING
+    }
+    public enum VariantsOfVote {
+        YES, NO, DID_NOT_VOTE
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,6 +54,15 @@ public class Petition {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     public Status status;
+
+    @Column(name = "current_positive_vote_count", nullable = false)
+    private int current_positive_vote_count = 0;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "directors_decision", nullable = false)
+    public DirectorsDecision directorsDecision  = DirectorsDecision.NOT_ENOUGH_VOTING;
+
+
 
     public Petition() {
     }
@@ -128,4 +147,17 @@ public class Petition {
         this.status = status;
     }
 
+    public int getCurrentVoteCount() {
+        return current_positive_vote_count;
+    }
+    public void setCurrentVoteCount(int current_positive_vote_count) {
+        this.current_positive_vote_count = current_positive_vote_count;
+    }
+
+    public DirectorsDecision getDirectorsDecision() {
+        return directorsDecision;
+    }
+    public void setDirectorsDecision(DirectorsDecision directors_decision) {
+        this.directorsDecision = directors_decision;
+    }    
 }

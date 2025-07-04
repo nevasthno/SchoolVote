@@ -32,8 +32,10 @@ document.getElementById("loginButton").addEventListener("click", async () => {
       window.location.href = "teacher.html";
     } else if (realRole === "PARENT") {
       window.location.href = "parent.html";
-    } else {
-      window.location.href = "main.html";
+    } else if (realRole === "STUDENT") {
+      window.location.href = "student.html";
+    } else if (realRole === "DIRECTOR") {
+      window.location.href = "director.html";
     }
 
   } catch (err) {
