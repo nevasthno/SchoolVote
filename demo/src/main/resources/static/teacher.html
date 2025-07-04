@@ -196,6 +196,15 @@ body.dark-theme .nav-tabs button.active {
                     <option value="PERSONAL">Особиста</option>
                 </select>
                 <button id="create-event-button">Створити подію</button>
+
+                <h2>Створити опитування</h2>
+    <input id="poll-question" placeholder="Питання опитування">
+    <div id="poll-options">
+        <input class="poll-option" placeholder="Варіант 1">
+        <input class="poll-option" placeholder="Варіант 2">
+    </div>
+    <button onclick="addPollOption()">Додати варіант</button>
+    <button onclick="submitPoll()">Створити опитування</button>
             </section>
         </section>
 
@@ -242,14 +251,7 @@ body.dark-theme .nav-tabs button.active {
             </section>
         </section>
         <section>
-    <h2>Створити опитування</h2>
-    <input id="poll-question" placeholder="Питання опитування">
-    <div id="poll-options">
-        <input class="poll-option" placeholder="Варіант 1">
-        <input class="poll-option" placeholder="Варіант 2">
-    </div>
-    <button onclick="addPollOption()">Додати варіант</button>
-    <button onclick="submitPoll()">Створити опитування</button>
+    
 </section>
 
     </main>
