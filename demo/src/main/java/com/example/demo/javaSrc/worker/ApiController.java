@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +24,9 @@ import com.example.demo.javaSrc.people.People;
 import com.example.demo.javaSrc.people.PeopleService;
 import com.example.demo.javaSrc.school.School;
 import com.example.demo.javaSrc.school.SchoolService;
-import com.example.demo.javaSrc.votingAndPetitions.*;
+import com.example.demo.javaSrc.voting.*;
+import com.example.demo.javaSrc.petitions.*;
+
 import com.example.demo.javaSrc.school.SchoolClass;
 import com.example.demo.javaSrc.school.ClassService;
 
@@ -38,6 +42,7 @@ public class ApiController {
     private final VoteService voteService;
     private final PetitionService petitionService;
     private final PetitionRepository petitionRepository;
+
 
     @Autowired
     public ApiController(
@@ -140,12 +145,10 @@ public class ApiController {
             @RequestBody People newUser,
             Authentication auth) {
 
-        // Do NOT override schoolId/classId if present in request
-        // Only check for null to avoid errors, but do not set to teacher's own
+        
         if (newUser.getSchoolId() == null) {
             return ResponseEntity.badRequest().body(null);
         }
-        // classId can be null (for school-wide users)
 
         String rawPass = newUser.getPassword();
         newUser.setPassword(passwordEncoder.encode(rawPass));
@@ -295,6 +298,109 @@ public class ApiController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @PostMapping("/createVoting")
+    public ResponseEntity<Vote> createVoting(@RequestBody Vote request) {
+        Vote newVote = new Vote();
+        newVote.setSchoolId(request.getSchoolId());
+        newVote.setClassId(request.getClassId());
+        newVote.setTitle(request.getTitle());
+        newVote.setDescription(request.getDescription());
+        newVote.setCreatedBy(request.getCreatedBy());
+        newVote.setStartDate(request.getStartDate());
+        newVote.setEndDate(request.getEndDate());
+        newVote.setMultipleChoice(request.isMultipleChoice());
+        newVote.setVotingLevel(request.getVotingLevel());
+
+        List<String> variantStrings = request.getVariants() != null
+                ? request.getVariants().stream().map(VotingVariant::getText).toList()
+                : List.of();
+
+        List<Long> participantIds = request.getParticipants() != null
+                ? request.getParticipants().stream().map(VotingParticipant::getUserId).toList()
+                : List.of();
+
+        Vote createdVote = voteService.createVoting(newVote, variantStrings, participantIds);
+        return new ResponseEntity<>(createdVote, HttpStatus.CREATED);
+    }
+
+    @GetMapping("voting/{id}")
+    public ResponseEntity<Vote> getVotingById(@PathVariable Long id) {
+        Vote vote = voteService.getVotingById(id);
+        if (vote != null) {
+            return new ResponseEntity<>(vote, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("voting/user/{userId}")
+    public ResponseEntity<List<Vote>> getAccessibleVotings(@PathVariable Long userId,
+                                                           @RequestParam Long schoolId,
+                                                           @RequestParam(required = false) Long classId) {
+        List<Vote> votings = voteService.getAccessibleVotingsForUser(userId, schoolId, classId);
+        return new ResponseEntity<>(votings, HttpStatus.OK);
+    }
+
+    @PostMapping("voting/{votingId}/vote")
+    public ResponseEntity<String> castVote(@PathVariable Long votingId, @RequestBody Vote request, Authentication auth) {
+        List<Long> variantIds = request.getVariants() != null
+                ? request.getVariants().stream().map(VotingVariant::getId).toList()
+                : List.of();
+
+        Long userId = null;
+        if (auth != null) {
+            People user = currentUser(auth);
+            if (user != null) {
+                userId = user.getId();
+            }
+        }
+
+        boolean success = voteService.recordVote(votingId, variantIds, userId);
+        if (success) {
+            return new ResponseEntity<>("Vote recorded successfully", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Failed to record vote. Check voting status, eligibility, or if you already voted.", HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping("voting/{votingId}/results")
+    public ResponseEntity<VotingResults> getVotingResults(@PathVariable Long votingId) {
+        VotingResults results = voteService.getVotingResults(votingId);
+        if (results != null) {
+            return new ResponseEntity<>(results, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @PutMapping("voting/{id}")
+    public ResponseEntity<Vote> updateVoting(@PathVariable Long id, @RequestBody Vote request) {
+        Vote updatedVote = new Vote();
+        updatedVote.setSchoolId(request.getSchoolId());
+        updatedVote.setClassId(request.getClassId());
+        updatedVote.setTitle(request.getTitle());
+        updatedVote.setDescription(request.getDescription());
+        updatedVote.setCreatedBy(request.getCreatedBy());
+        updatedVote.setStartDate(request.getStartDate());
+        updatedVote.setEndDate(request.getEndDate());
+        updatedVote.setMultipleChoice(request.isMultipleChoice());
+        updatedVote.setVotingLevel(request.getVotingLevel());
+
+        List<String> variantStrings = request.getVariants() != null
+                ? request.getVariants().stream().map(VotingVariant::getText).toList()
+                : List.of();
+
+        List<Long> participantIds = request.getParticipants() != null
+                ? request.getParticipants().stream().map(VotingParticipant::getUserId).toList()
+                : List.of();
+
+        Vote createdVote = voteService.updateVoting(id, updatedVote, variantStrings, participantIds);
+        return new ResponseEntity<>(createdVote, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("voting/{id}")
+    public ResponseEntity<Void> deleteVoting(@PathVariable Long id) {
+        voteService.deleteVoting(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 }

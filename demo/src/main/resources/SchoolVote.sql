@@ -29,17 +29,51 @@ CREATE TABLE IF NOT EXISTS `users` (
   FOREIGN KEY (`school_id`) REFERENCES `schools`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`class_id`)  REFERENCES `classes`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS `voting` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `school_id` BIGINT NOT NULL,
-  `class_id` BIGINT NULL,
-  `title` VARCHAR(250) NOT NULL,
-  `description` TEXT NULL,
-  `start_date` DATETIME NOT NULL,
-  `end_date` DATETIME NOT NULL,
-  `created_by` BIGINT NOT NULL,
-  `multiple_choice` BOOLEAN NOT NULL DEFAULT FALSE 
+    `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `school_id` BIGINT NOT NULL,
+    `class_id` BIGINT NULL,
+    `title` VARCHAR(250) NOT NULL,
+    `description` TEXT NULL,
+    `start_date` DATETIME NOT NULL,
+    `end_date` DATETIME NOT NULL,
+    `created_by` BIGINT NOT NULL,
+    `multiple_choice` BOOLEAN NOT NULL DEFAULT FALSE,
+    `voting_level` ENUM('school', 'aclass', 'teachers_group', 'selected_users') NOT NULL DEFAULT 'school',
+    `status` ENUM('OPEN', 'CLOSED') NOT NULL DEFAULT 'OPEN',
+    `variants` JSON NOT NULL
 ) ENGINE=InnoDB;
+
+
+CREATE TABLE IF NOT EXISTS `voting_variant` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `voting_id` BIGINT NOT NULL,
+    `text` VARCHAR(255) NOT NULL, 
+    FOREIGN KEY (`voting_id`) REFERENCES `voting`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS `voting_vote` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `voting_id` BIGINT NOT NULL,
+    `variant_id` BIGINT NOT NULL,
+    `user_id` BIGINT NOT NULL,
+    `vote_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`voting_id`) REFERENCES `voting`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`variant_id`) REFERENCES `voting_variant`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+    UNIQUE KEY `unique_vote_per_variant` (`voting_id`, `user_id`, `variant_id`)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS `voting_participant` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `voting_id` BIGINT NOT NULL,
+    `user_id` BIGINT NOT NULL,
+    FOREIGN KEY (`voting_id`) REFERENCES `voting`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+    UNIQUE KEY `unique_participant` (`voting_id`, `user_id`)
+) ENGINE=InnoDB;
+
 
 CREATE TABLE IF NOT EXISTS `petitions` (
   `id` BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
