@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +22,7 @@ import com.example.demo.javaSrc.people.People;
 import com.example.demo.javaSrc.people.PeopleService;
 import com.example.demo.javaSrc.school.School;
 import com.example.demo.javaSrc.school.SchoolService;
+import com.example.demo.javaSrc.votingAndPetitions.*;
 import com.example.demo.javaSrc.school.SchoolClass;
 import com.example.demo.javaSrc.school.ClassService;
 
@@ -33,18 +35,30 @@ public class ApiController {
     private final PasswordEncoder passwordEncoder;
     private final SchoolService schoolService;
     private final ClassService classService;
+    private final VoteRepository voteRepository;
+    private final VoteService voteService;
+    private final PetitionService petitionService;
+    private final PetitionRepository petitionRepository;
 
     @Autowired
     public ApiController(
                          PeopleService peopleService,
                          PasswordEncoder passwordEncoder,
                          SchoolService schoolService,
-                         ClassService classService) {
+                         ClassService classService,
+                         VoteRepository voteRepository,
+                         VoteService voteService,
+                         PetitionService petitionService,
+                         PetitionRepository petitionRepository) {
         
         this.peopleService   = peopleService;
         this.passwordEncoder = passwordEncoder;
         this.schoolService   = schoolService;
         this.classService    = classService;
+        this.voteRepository  = voteRepository;
+        this.voteService     = voteService;
+        this.petitionService = petitionService;
+        this.petitionRepository = petitionRepository;
     }
 
     private People currentUser(Authentication auth) {
@@ -219,4 +233,61 @@ public class ApiController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PostMapping("/createVote")
+    public ResponseEntity<Vote> createVote(@RequestBody Vote voteRB) {
+        Vote vote = new Vote();
+
+        vote.setSchoolId(voteRB.getSchoolId());
+        vote.setClassId(voteRB.getClassId());
+        vote.setTitle(voteRB.getTitle());
+        vote.setDescription(voteRB.getDescription());
+        vote.setCreatedBy(voteRB.getCreatedBy());
+        vote.setStartDate(voteRB.getStartDate());
+        vote.setEndDate(voteRB.getEndDate());
+        vote.setMultipleChoice(voteRB.isMultipleChoice());
+
+        voteRepository.save(vote);
+
+        return ResponseEntity.ok(vote);
+    }
+
+    @PreAuthorize("hasRole('STUDENT')")
+    @PostMapping("/createPetition")
+    public ResponseEntity<Petition> createPetition(@RequestBody Petition petitionRB, Authentication auth) {
+        People user = currentUser(auth);
+        if (user == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        Petition petition = new Petition();
+        petition.setSchoolId(petitionRB.getSchoolId());
+        petition.setClassId(petitionRB.getClassId());
+        petition.setTitle(petitionRB.getTitle());
+        petition.setDescription(petitionRB.getDescription());
+        petition.setCreatedBy(user.getId());
+        petition.setStartDate(petitionRB.getStartDate());
+        petition.setEndDate(petitionRB.getEndDate());
+
+        petitionRepository.save(petition);
+
+        return ResponseEntity.ok(petition);
+    }
+
+        @PostMapping("/petitions/{id}/vote")
+        @PreAuthorize("hasRole('STUDENT')")
+        public ResponseEntity<?> voteForPetition(@PathVariable Long id,
+                                                @RequestParam("vote") PetitionVote.VoteVariant vote,
+                                                @AuthenticationPrincipal People user) {
+            try {
+                Long studentId = user.getId(); 
+                petitionService.vote(id, studentId, vote);
+                return ResponseEntity.ok("Vote recorded");
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body(e.getMessage());
+            }
+        }
+
+    
+    
 }
