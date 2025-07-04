@@ -1,3 +1,92 @@
+document.addEventListener("DOMContentLoaded", () => {
+    const pollQuestionText = document.getElementById("poll-question-text");
+    const pollForm = document.getElementById("poll-form");
+    const pollOptionsList = document.getElementById("poll-options-list");
+    const createPollForm = document.getElementById("create-poll-form");
+
+    // Завантаження опитування з localStorage
+    function loadPoll() {
+        const pollData = localStorage.getItem("globalPoll");
+        return pollData ? JSON.parse(pollData) : null;
+    }
+
+    // Збереження опитування в localStorage
+    function savePoll(poll) {
+        localStorage.setItem("globalPoll", JSON.stringify(poll));
+    }
+
+    // Показ опитування на сторінці
+    function displayPoll() {
+        const poll = loadPoll();
+
+        if (!poll) {
+            pollQuestionText.textContent = "Немає активного опитування.";
+            pollForm.style.display = "none";
+            return;
+        }
+
+        pollQuestionText.textContent = poll.question;
+        pollForm.style.display = "block";
+        pollOptionsList.innerHTML = "";
+
+        poll.options.forEach((optionText, index) => {
+            const option = document.createElement("div");
+            option.innerHTML = `
+                <label>
+                    <input type="radio" name="poll-option" value="${index}" required />
+                    ${optionText}
+                </label>
+            `;
+            pollOptionsList.appendChild(option);
+        });
+    }
+
+    // Відправка відповіді
+    pollForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const selected = pollForm.querySelector('input[name="poll-option"]:checked');
+        if (!selected) return;
+
+        const poll = loadPoll();
+        if (!poll) return;
+
+        const index = parseInt(selected.value);
+        poll.votes[index]++;
+        savePoll(poll);
+        alert("Ваш голос зараховано!");
+        pollForm.reset();
+    });
+
+    // Створення нового опитування
+    if (createPollForm) {
+        createPollForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const question = document.getElementById("poll-question").value.trim();
+            const optionsRaw = document.getElementById("poll-options").value.trim();
+            const options = optionsRaw.split("\n").map(opt => opt.trim()).filter(opt => opt);
+
+            if (question && options.length >= 2) {
+                const newPoll = {
+                    question: question,
+                    options: options,
+                    votes: Array(options.length).fill(0)
+                };
+                savePoll(newPoll);
+                displayPoll();
+                createPollForm.reset();
+            } else {
+                alert("Введіть запитання і хоча б 2 варіанти.");
+            }
+        });
+    }
+
+    // Показати опитування при завантаженні
+    displayPoll();
+});
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const pollData = JSON.parse(localStorage.getItem('currentPoll'));
     if (!pollData) return;

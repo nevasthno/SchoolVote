@@ -56,39 +56,49 @@
 
 <body>
     <header>
-        <h1>Головна сторінка</h1>
-        <button id="logoutButton" class="auth-button">Вийти</button>
-
-
-        <button id="toggleThemeButton" class="theme-toggle-button">Змінити тему</button>
-
-
+        <h1 class="main-title">Головна сторінка</h1>
+        <p class="subtitle">Вітаємо у системі голосування</p>
+        <div class="header-buttons">
+            <button id="logoutButton" class="auth-button">Вийти</button>
+            <button id="toggleThemeButton" class="theme-toggle-button">Змінити тему</button>
+        </div>
     </header>
 
     <div class="nav-tabs">
-        <button id="tab-main" class="active" type="button">Головна інформація</button>
+        <button id="tab-main" class="active" type="button">Головна</button>
         <button id="tab-profile" type="button">Інформація про мене</button>
     </div>
 
     <main>
-        <!-- Main Info Page -->
+        <!-- Головна вкладка -->
         <section id="main-page" class="page-section active">
-            <section id="calendar-section">
+            <div class="info-card">
+                <h2>🛈Про систему</h2>
+                <p>Ця система дозволяє організовувати та проводити голосування серед учнів школи, переглядати події та оновлювати інформацію про себе.</p>
+            </div>
+
+            <div class="info-card steps">
+                <h2>Як користуватись</h2>
+                <ol>
+                    <li>Авторизуйтесь у системі.</li>
+                    <li>Перейдіть до "Інформація про мене" для редагування профілю.</li>
+                    <li>Переглядайте події у календарі.</li>
+                    <li>Голосуйте в активних опитуваннях.</li>
+                </ol>
+            </div>
+            <div class="info-card">
                 <h2>Календар подій</h2>
-                <div id="calendar-controls"
-                    style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
-                    <div>
-                        <button id="calendar-view-day" type="button">День</button>
-                        <button id="calendar-view-week" type="button">Тиждень</button>
-                        <button id="calendar-view-month" type="button" class="active">Місяць</button>
-                        <button id="calendar-view-year" type="button">Рік</button>
+                <div class="calendar-controls">
+                    <div class="calendar-views">
+                        <button id="calendar-view-day">День</button>
+                        <button id="calendar-view-week">Тиждень</button>
+                        <button id="calendar-view-month" class="active">Місяць</button>
+                        <button id="calendar-view-year">Рік</button>
                     </div>
                     <div>
-                        <label for="calendar-user-select" style="color:#19b640;">Переглянути календар
-                            користувача:</label>
-                        <select id="calendar-user-select" style="min-width:180px;">
+                        <label for="calendar-user-select">Переглянути календар користувача:</label>
+                        <select id="calendar-user-select">
                             <option value="">Я</option>
-                            <!-- Users will be loaded here -->
                         </select>
                     </div>
                 </div>
@@ -116,26 +126,36 @@
                     <div id="calendar-week-view" style="display:none;"></div>
                     <div id="calendar-year-view" style="display:none;"></div>
                 </div>
+            </div>
 
+            <div class="info-card">
+                <h2>Опитування</h2>
+                <p id="poll-question-text">Немає активного опитування.</p>
+                <form id="poll-form" style="display:none">
+                    <div id="poll-options-list"></div>
+                    <button type="submit">Відправити відповідь</button>
+                </form>
+            </div>
+<div class="info-card">
+    <h2>Створити опитування</h2>
+    <form id="create-poll-form">
+        <label for="poll-question">Запитання:</label>
+        <input type="text" id="poll-question" name="poll-question" required />
 
+        <label for="poll-options">Варіанти відповідей (по одному в рядку):</label>
+        <textarea id="poll-options" name="poll-options" rows="4" required></textarea>
 
-                <section id="poll-section">
-                    <h2>Опитування</h2>
-                    <p id="poll-question-text">Немає активного опитування.</p>
-                    <form id="poll-form" style="display:none">
-                        <div id="poll-options-list"></div>
-                        <button type="submit">Відправити відповідь</button>
-                    </form>
-                </section>
+        <button type="submit">Створити опитування</button>
+    </form>
+</div>
 
-
-            </section>
+            
         </section>
 
-        <!-- Profile Page -->
+        <!-- Профіль -->
         <section id="profile-page" class="page-section">
-            <div class="aboutme-card">
-                <h2>Про мене</h2>
+            <div class="info-card">
+                <h2>Інформація про учня</h2>
                 <p><strong>Ім'я:</strong> <span id="profile-firstName">-</span></p>
                 <p><strong>Прізвище:</strong> <span id="profile-lastName">-</span></p>
                 <p><strong>Дата народження:</strong> <span id="profile-dateOfBirth">-</span></p>
@@ -143,8 +163,9 @@
                 <p><strong>Email:</strong> <span id="profile-email">-</span></p>
                 <p><strong>Роль:</strong> <span id="profile-role">-</span></p>
             </div>
-            <section id="update-profile-info-section">
-                <h2>Оновити профіль</h2>
+
+            <div class="info-card">
+                <h2>Оновити інформацію</h2>
                 <form id="editProfileForm">
                     <label for="edit-firstName">Ім'я:</label>
                     <input type="text" id="edit-firstName" name="firstName" />
@@ -169,12 +190,22 @@
 
                     <button type="submit">Оновити профіль</button>
                 </form>
-            </section>
+            </div>
         </section>
     </main>
 
+<<<<<<< HEAD
+<<<<<<< HEAD:demo/src/main/resources/static/main.html
+    <script src="scripts/main.js"></script>
+    <div id="event-modal" style="display:none"></div>
+=======
     <script src="scripts/student.js"></script>
     <script src="scripts/vote.js"></script>
+>>>>>>> 541dc02fd8a10460b6850129037d2d038544bea9:demo/src/main/resources/static/student.html
+=======
+    <script src="scripts/student.js"></script>
+    <script src="scripts/vote.js"></script>
+>>>>>>> 541dc02fd8a10460b6850129037d2d038544bea9
 </body>
 
 </html>
