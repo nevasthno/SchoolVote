@@ -233,25 +233,6 @@ public class ApiController {
         }
     }
 
-    @PostMapping("/createVote")
-    public ResponseEntity<Vote> createVote(@RequestBody Vote voteRB, Authentication auth) {
-        People user = currentUser(auth);
-        if (user == null) {
-            return ResponseEntity.status(401).build();
-        }
-        Vote vote = new Vote();
-        vote.setSchoolId(voteRB.getSchoolId() != null ? voteRB.getSchoolId() : user.getSchoolId());
-        vote.setClassId(voteRB.getClassId());
-        vote.setTitle(voteRB.getTitle());
-        vote.setDescription(voteRB.getDescription());
-        vote.setCreatedBy(user.getId());
-        vote.setStartDate(voteRB.getStartDate());
-        vote.setEndDate(voteRB.getEndDate());
-        vote.setMultipleChoice(voteRB.isMultipleChoice());
-        voteRepository.save(vote);
-        return ResponseEntity.ok(vote);
-    }
-
     @GetMapping("/votes")
     public List<Vote> getVotes(@RequestParam(required = false) Long schoolId,
             @RequestParam(required = false) Long classId) {
