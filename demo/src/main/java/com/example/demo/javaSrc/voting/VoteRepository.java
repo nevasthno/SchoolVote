@@ -26,5 +26,6 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
 
     // New finders for the new fields
     List<Vote> findByVotingLevel(Vote.VotingLevel votingLevel);
+
     List<Vote> findByStatus(Vote.VoteStatus status);
 }

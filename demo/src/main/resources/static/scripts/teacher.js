@@ -1,32 +1,4 @@
 // Tab/page switching logic
-function addPollOption() {
-    const input = document.createElement('input');
-    input.className = 'poll-option';
-    input.placeholder = `Варіант`;
-    document.getElementById('poll-options').appendChild(input);
-}
-
-function submitPoll() {
-    const question = document.getElementById('poll-question').value;
-    const optionInputs = document.querySelectorAll('.poll-option');
-    const options = Array.from(optionInputs).map(input => input.value).filter(opt => opt.trim());
-
-    if (!question || options.length < 2) {
-        alert('Введіть питання і хоча б два варіанти!');
-        return;
-    }
-
-    const pollData = { question, options };
-
-    localStorage.setItem('currentPoll', JSON.stringify(pollData)); // для демо, замінити API-запитом
-
-    alert('Опитування створено!');
-    document.getElementById('poll-question').value = '';
-    document.getElementById('poll-options').innerHTML = `
-        <input class="poll-option" placeholder="Варіант 1">
-        <input class="poll-option" placeholder="Варіант 2">
-    `;
-}
 
 
 

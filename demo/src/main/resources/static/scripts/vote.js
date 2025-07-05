@@ -1,6 +1,3 @@
-// vote.js - Voting logic for all user types
-
-// Utility: fetch with JWT
 async function fetchWithAuth(url, opts = {}) {
     const token = localStorage.getItem("jwtToken");
     opts.headers = {
@@ -11,7 +8,56 @@ async function fetchWithAuth(url, opts = {}) {
     return fetch(url, opts);
 }
 
-// Show vote creation form (call this to render the form anywhere)
+async function renderClassDropdown(extraDiv, schoolId, userClassId, onChangeCb) {
+    extraDiv.innerHTML = "Завантаження класів...";
+    try {
+        const resp = await fetchWithAuth(`/api/classes?schoolId=${schoolId}`);
+        const classes = await resp.json();
+        if (!classes.length) {
+            extraDiv.innerHTML = "<div>Немає класів для вибору.</div>";
+            return;
+        }
+        extraDiv.innerHTML = `
+            <label>Клас:
+                <select name="classId" id="vote-class-select" required>
+                    <option value="">Всі класи</option>
+                    ${classes.map(c => `<option value="${c.id}" ${userClassId && c.id === userClassId ? "selected" : ""}>${c.name}</option>`).join("")}
+                </select>
+            </label>
+        `;
+        if (onChangeCb) {
+            document.getElementById('vote-class-select').addEventListener('change', onChangeCb);
+        }
+    } catch {
+        extraDiv.innerHTML = "<div>Не вдалося завантажити класи.</div>";
+    }
+}
+
+async function renderUserCheckboxes(extraDiv, schoolId, classId, userType) {
+    const container = extraDiv.querySelector('#user-checkboxes');
+    container.innerHTML = "Завантаження...";
+    let url = userType === 'teachers'
+        ? `/api/teachers?schoolId=${schoolId}`
+        : `/api/users?schoolId=${schoolId}`;
+    if (classId) url += `&classId=${classId}`;
+    try {
+        const resp = await fetchWithAuth(url);
+        const list = await resp.json();
+        if (!list.length) {
+            container.innerHTML = "<div>Немає користувачів для вибору.</div>";
+            return;
+        }
+        container.innerHTML = list.map(u =>
+            `<label style="display:block;">
+                <input type="checkbox" class="participant-checkbox" value="${u.id}">
+                ${u.firstName} ${u.lastName} (${u.email})
+            </label>`
+        ).join("");
+    } catch {
+        container.innerHTML = "<div>Не вдалося завантажити користувачів.</div>";
+    }
+}
+
 function renderVoteCreation(containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -43,8 +89,6 @@ function renderVoteCreation(containerId) {
             <div id="vote-create-result"></div>
         </section>
     `;
-
-    // Add option logic
     document.getElementById('add-vote-option').onclick = function () {
         const list = document.getElementById('vote-options-list');
         const input = document.createElement('input');
@@ -53,60 +97,167 @@ function renderVoteCreation(containerId) {
         input.placeholder = `Варіант`;
         list.appendChild(input);
     };
-
-    // Level-specific UI
-    document.getElementById('vote-level').onchange = function (e) {
+    document.getElementById('vote-level').onchange = async function (e) {
         const extra = document.getElementById('vote-level-extra');
         const val = e.target.value;
+        let user;
+        try {
+            const resp = await fetchWithAuth("/api/me");
+            user = await resp.json();
+        } catch {
+            extra.innerHTML = "<div>Не вдалося отримати дані користувача.</div>";
+            return;
+        }
+        const need = val === 'TEACHERS_GROUP' || val === 'SELECTED';
         if (val === 'CLASS') {
-            extra.innerHTML = '<input name="classId" placeholder="ID класу" required>';
-        } else if (val === 'TEACHERS_GROUP') {
-            extra.innerHTML = '<input name="teacherIds" placeholder="ID вчителів (через кому)" required>';
-        } else if (val === 'SELECTED') {
-            extra.innerHTML = '<input name="participantIds" placeholder="ID учасників (через кому)" required>';
+            await renderClassDropdown(extra, user.schoolId, user.classId, null);
+        } else if (need) {
+            extra.innerHTML = '';
+            await renderClassDropdown(extra, user.schoolId, user.classId, async function () {
+                const classId = this.value || null;
+                await renderUserCheckboxes(extra, user.schoolId, classId, val === 'TEACHERS_GROUP' ? 'teachers' : 'users');
+            });
+            extra.insertAdjacentHTML('beforeend', `<div id="user-checkboxes" style="margin-top:8px;">Оберіть клас вище</div>`);
+            const sel = document.getElementById('vote-class-select');
+            const cid = sel ? sel.value : null;
+            await renderUserCheckboxes(extra, user.schoolId, cid, val === 'TEACHERS_GROUP' ? 'teachers' : 'users');
         } else {
             extra.innerHTML = '';
         }
     };
-
-    // Form submit
+    document.getElementById('vote-level').dispatchEvent(new Event('change'));
     document.getElementById('vote-create-form').onsubmit = async function (e) {
         e.preventDefault();
         const form = e.target;
+        let user;
+        try {
+            const resp = await fetchWithAuth("/api/me");
+            user = await resp.json();
+        } catch {
+            document.getElementById('vote-create-result').innerText = 'Не вдалося отримати дані користувача.';
+            return;
+        }
+        const levelMap = { SCHOOL: "SCHOOL", CLASS: "ACLASS", TEACHERS_GROUP: "TEACHERS_GROUP", SELECTED: "SELECTED_USERS" };
         const data = {
+            schoolId: user.schoolId,
+            classId: null,
             title: form.title.value,
             description: form.description.value,
-            level: form.level.value,
             startDate: new Date(form.startDate.value).toISOString(),
             endDate: new Date(form.endDate.value).toISOString(),
+            createdBy: user.id,
             multipleChoice: form.multipleChoice.checked,
-            options: Array.from(form.querySelectorAll('.vote-option')).map(i => i.value).filter(v => v.trim())
+            votingLevel: levelMap[form.level.value] || "SCHOOL",
+            status: "OPEN",
+            variants: Array.from(form.querySelectorAll('.vote-option')).map(i => ({ text: i.value })).filter(v => v.text.trim())
         };
-        if (data.options.length < 2) {
+        if (data.votingLevel === 'ACLASS') {
+            const cs = form.querySelector('[name="classId"]');
+            data.classId = cs ? cs.value : user.classId || null;
+        }
+        if (data.variants.length < 2) {
             document.getElementById('vote-create-result').innerText = 'Додайте хоча б два варіанти.';
             return;
         }
-        // Level-specific fields
-        if (data.level === 'CLASS') data.classId = form.classId.value;
-        if (data.level === 'TEACHERS_GROUP') data.teacherIds = form.teacherIds.value.split(',').map(s => s.trim());
-        if (data.level === 'SELECTED') data.participantIds = form.participantIds.value.split(',').map(s => s.trim());
-        // Send to backend
+        if (data.votingLevel === 'TEACHERS_GROUP' || data.votingLevel === 'SELECTED_USERS') {
+            const checked = Array.from(document.querySelectorAll('#vote-level-extra .participant-checkbox:checked')).map(cb => cb.value);
+            if (!checked.length) {
+                document.getElementById('vote-create-result').innerText = 'Оберіть хоча б одного учасника.';
+                return;
+            }
+            data.participants = checked.map(id => ({ userId: Number(id) }));
+        }
         try {
-            const resp = await fetchWithAuth('/api/votes', {
-                method: 'POST',
-                body: JSON.stringify(data)
-            });
+            const resp = await fetchWithAuth('/api/createVoting', { method: 'POST', body: JSON.stringify(data) });
             if (resp.ok) {
                 document.getElementById('vote-create-result').innerText = 'Голосування створено!';
                 form.reset();
+                document.getElementById('vote-level').dispatchEvent(new Event('change'));
             } else {
                 const err = await resp.text();
                 document.getElementById('vote-create-result').innerText = 'Помилка: ' + err;
             }
-        } catch (e) {
+        } catch {
             document.getElementById('vote-create-result').innerText = 'Помилка з’єднання.';
         }
     };
 }
 
-// Example: to use, call renderVoteCreation('some-container-id') on any page
+async function renderAvailableVotes(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = "<div>Завантаження голосувань...</div>";
+    let user;
+    try {
+        const resp = await fetchWithAuth("/api/me");
+        user = await resp.json();
+    } catch {
+        container.innerHTML = "<div>Не вдалося отримати інформацію про користувача.</div>";
+        return;
+    }
+    let votes = [];
+    try {
+        const url = `/api/voting/user/${user.id}?schoolId=${user.schoolId}${user.classId ? `&classId=${user.classId}` : ""}`;
+        const resp = await fetchWithAuth(url);
+        votes = await resp.json();
+    } catch {
+        container.innerHTML = "<div>Не вдалося завантажити голосування.</div>";
+        return;
+    }
+    if (!votes.length) {
+        container.innerHTML = "<div>Немає доступних голосувань.</div>";
+        return;
+    }
+    container.innerHTML = "";
+    votes.forEach(vote => {
+        const section = document.createElement("section");
+        section.className = "vote-section";
+        section.innerHTML = `
+            <h3>${vote.title}</h3>
+            <p>${vote.description || ""}</p>
+            <form class="vote-form" data-vote-id="${vote.id}">
+                ${vote.variants.map(variant =>
+            `<label>
+                        <input type="${vote.multipleChoice ? "checkbox" : "radio"}" name="variant" value="${variant.id}">
+                        ${variant.text}
+                    </label><br>`
+        ).join("")}
+                <button type="submit">Проголосувати</button>
+                <span class="vote-result"></span>
+            </form>
+        `;
+        container.appendChild(section);
+    });
+    container.querySelectorAll(".vote-form").forEach(form => {
+        form.onsubmit = async function (e) {
+            e.preventDefault();
+            const voteId = form.getAttribute("data-vote-id");
+            const selected = Array.from(form.querySelectorAll('input[name="variant"]:checked')).map(i => Number(i.value));
+            if (!selected.length) {
+                form.querySelector(".vote-result").textContent = "Оберіть варіант!";
+                return;
+            }
+            try {
+                const resp = await fetchWithAuth(`/api/voting/${voteId}/vote`, { method: "POST", body: JSON.stringify({ variants: selected.map(id => ({ id })) }) });
+                if (resp.ok) {
+                    form.querySelector(".vote-result").textContent = "Голос зараховано!";
+                    form.querySelector("button[type=submit]").disabled = true;
+                } else {
+                    const err = await resp.text();
+                    form.querySelector(".vote-result").textContent = "Помилка: " + err;
+                }
+            } catch {
+                form.querySelector(".vote-result").textContent = "Помилка з’єднання.";
+            }
+        };
+    });
+}
+
+const levelMap = {
+    SCHOOL: "school",
+    CLASS: "aclass",
+    TEACHERS_GROUP: "teachers_group",
+    SELECTED: "selected_users"
+};
+
+export { fetchWithAuth, renderVoteCreation, renderAvailableVotes, levelMap };

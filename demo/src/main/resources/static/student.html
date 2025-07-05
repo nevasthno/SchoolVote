@@ -74,7 +74,8 @@
         <section id="main-page" class="page-section active">
             <div class="info-card">
                 <h2>🛈Про систему</h2>
-                <p>Ця система дозволяє організовувати та проводити голосування серед учнів школи, переглядати події та оновлювати інформацію про себе.</p>
+                <p>Ця система дозволяє організовувати та проводити голосування серед учнів школи, переглядати події та
+                    оновлювати інформацію про себе.</p>
             </div>
 
             <div class="info-card steps">
@@ -136,20 +137,14 @@
                     <button type="submit">Відправити відповідь</button>
                 </form>
             </div>
-<div class="info-card">
-    <h2>Створити опитування</h2>
-    <form id="create-poll-form">
-        <label for="poll-question">Запитання:</label>
-        <input type="text" id="poll-question" name="poll-question" required />
 
-        <label for="poll-options">Варіанти відповідей (по одному в рядку):</label>
-        <textarea id="poll-options" name="poll-options" rows="4" required></textarea>
-
-        <button type="submit">Створити опитування</button>
-    </form>
-</div>
-
-            
+            <div class="info-card">
+                <h2>Голосування</h2>
+                <div id="available-votes-container"></div>
+            </div>
+            <div class="info-card">
+                <div id="vote-create-container"></div>
+            </div>
         </section>
 
         <!-- Профіль -->
@@ -194,18 +189,9 @@
         </section>
     </main>
 
-<<<<<<< HEAD
-<<<<<<< HEAD:demo/src/main/resources/static/main.html
-    <script src="scripts/main.js"></script>
-    <div id="event-modal" style="display:none"></div>
-=======
-    <script src="scripts/student.js"></script>
-    <script src="scripts/vote.js"></script>
->>>>>>> 541dc02fd8a10460b6850129037d2d038544bea9:demo/src/main/resources/static/student.html
-=======
-    <script src="scripts/student.js"></script>
-    <script src="scripts/vote.js"></script>
->>>>>>> 541dc02fd8a10460b6850129037d2d038544bea9
+    <script type="module" src="scripts/student.js"></script>
+    <script type="module" src="scripts/vote.js"></script>
+
 </body>
 
 </html>

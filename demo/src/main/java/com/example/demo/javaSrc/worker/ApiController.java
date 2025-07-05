@@ -29,6 +29,7 @@ import com.example.demo.javaSrc.petitions.*;
 
 import com.example.demo.javaSrc.school.SchoolClass;
 import com.example.demo.javaSrc.school.ClassService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api")
@@ -42,7 +43,7 @@ public class ApiController {
     private final VoteService voteService;
     private final PetitionService petitionService;
     private final PetitionRepository petitionRepository;
-
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     public ApiController(
@@ -145,7 +146,6 @@ public class ApiController {
             @RequestBody People newUser,
             Authentication auth) {
 
-        
         if (newUser.getSchoolId() == null) {
             return ResponseEntity.badRequest().body(null);
         }
@@ -302,27 +302,54 @@ public class ApiController {
 
     @PostMapping("/createVoting")
     public ResponseEntity<Vote> createVoting(@RequestBody Vote request) {
-        Vote newVote = new Vote();
-        newVote.setSchoolId(request.getSchoolId());
-        newVote.setClassId(request.getClassId());
-        newVote.setTitle(request.getTitle());
-        newVote.setDescription(request.getDescription());
-        newVote.setCreatedBy(request.getCreatedBy());
-        newVote.setStartDate(request.getStartDate());
-        newVote.setEndDate(request.getEndDate());
-        newVote.setMultipleChoice(request.isMultipleChoice());
-        newVote.setVotingLevel(request.getVotingLevel());
+        try {
+            Vote newVote = new Vote();
+            newVote.setSchoolId(request.getSchoolId());
+            newVote.setClassId(request.getClassId());
+            newVote.setTitle(request.getTitle());
+            newVote.setDescription(request.getDescription());
+            newVote.setCreatedBy(request.getCreatedBy());
+            newVote.setStartDate(request.getStartDate());
+            newVote.setEndDate(request.getEndDate());
+            newVote.setMultipleChoice(request.isMultipleChoice());
 
-        List<String> variantStrings = request.getVariants() != null
-                ? request.getVariants().stream().map(VotingVariant::getText).toList()
-                : List.of();
+            // Defensive: ensure votingLevel is not null and valid
+            if (request.getVotingLevel() != null) {
+                newVote.setVotingLevel(request.getVotingLevel());
+            } else {
+                newVote.setVotingLevel(Vote.VotingLevel.SCHOOL);
+            }
 
-        List<Long> participantIds = request.getParticipants() != null
-                ? request.getParticipants().stream().map(VotingParticipant::getUserId).toList()
-                : List.of();
+            newVote.setStatus(Vote.VoteStatus.OPEN);
 
-        Vote createdVote = voteService.createVoting(newVote, variantStrings, participantIds);
-        return new ResponseEntity<>(createdVote, HttpStatus.CREATED);
+            // Serialize variants to JSON for variantsJson field
+            try {
+                if (request.getVariants() != null && !request.getVariants().isEmpty()) {
+                    String variantsJson = objectMapper.writeValueAsString(
+                            request.getVariants().stream().map(VotingVariant::getText).toList());
+                    newVote.setVariantsJson(variantsJson);
+                } else {
+                    newVote.setVariantsJson("[]");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResponseEntity.status(500).body(null);
+            }
+
+            List<String> variantStrings = request.getVariants() != null
+                    ? request.getVariants().stream().map(VotingVariant::getText).toList()
+                    : List.of();
+
+            List<Long> participantIds = request.getParticipants() != null
+                    ? request.getParticipants().stream().map(VotingParticipant::getUserId).toList()
+                    : List.of();
+
+            Vote createdVote = voteService.createVoting(newVote, variantStrings, participantIds);
+            return new ResponseEntity<>(createdVote, HttpStatus.CREATED);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseEntity.status(500).body(null);
+        }
     }
 
     @GetMapping("voting/{id}")
@@ -336,14 +363,16 @@ public class ApiController {
 
     @GetMapping("voting/user/{userId}")
     public ResponseEntity<List<Vote>> getAccessibleVotings(@PathVariable Long userId,
-                                                           @RequestParam Long schoolId,
-                                                           @RequestParam(required = false) Long classId) {
+            @RequestParam Long schoolId,
+            @RequestParam(required = false) Long classId) {
         List<Vote> votings = voteService.getAccessibleVotingsForUser(userId, schoolId, classId);
         return new ResponseEntity<>(votings, HttpStatus.OK);
     }
 
     @PostMapping("voting/{votingId}/vote")
-    public ResponseEntity<String> castVote(@PathVariable Long votingId, @RequestBody Vote request, Authentication auth) {
+    public ResponseEntity<String> castVote(@PathVariable Long votingId, @RequestBody Vote request,
+            Authentication auth) {
+        System.out.println("Received castVote: votingId=" + votingId + ", request=" + request);
         List<Long> variantIds = request.getVariants() != null
                 ? request.getVariants().stream().map(VotingVariant::getId).toList()
                 : List.of();
@@ -360,7 +389,8 @@ public class ApiController {
         if (success) {
             return new ResponseEntity<>("Vote recorded successfully", HttpStatus.OK);
         }
-        return new ResponseEntity<>("Failed to record vote. Check voting status, eligibility, or if you already voted.", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Failed to record vote. Check voting status, eligibility, or if you already voted.",
+                HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("voting/{votingId}/results")

@@ -208,19 +208,21 @@
         </section>
         <section>
             <h2>Створити опитування</h2>
-            <input id="poll-question" placeholder="Питання опитування">
-            <div id="poll-options">
-                <input class="poll-option" placeholder="Варіант 1">
-                <input class="poll-option" placeholder="Варіант 2">
-            </div>
-            <button onclick="addPollOption()">Додати варіант</button>
-            <button onclick="submitPoll()">Створити опитування</button>
+            <div id="vote-create-container"></div>
         </section>
 
     </main>
 
     <script src="scripts/teacher.js"></script>
     <script src="scripts/vote.js"></script>
+    <script>
+        // Render vote creation form on page load
+        document.addEventListener("DOMContentLoaded", function () {
+            if (document.getElementById("vote-create-container")) {
+                renderVoteCreation("vote-create-container");
+            }
+        });
+    </script>
 </body>
 
 </html>
