@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Сторінка вчителя</title>
+    <title>Сторінка директора</title>
     <link rel="stylesheet" href="styles/main.css">
     <style>
         .nav-tabs {
@@ -90,7 +90,7 @@
 
 <body>
     <header>
-        <h1>Панель вчителя</h1>
+        <h1>Панель директора</h1>
         <button id="logoutButton" class="auth-button">Вийти</button>
         <button id="toggleThemeButton" class="theme-toggle-button">Змінити тему</button>
 
@@ -220,14 +220,7 @@
 
     <script src="scripts/teacher.js"></script>
     <script src="scripts/vote.js"></script>
-    <script>
-        // Render vote creation form on page load
-        document.addEventListener("DOMContentLoaded", function () {
-            if (document.getElementById("vote-create-container")) {
-                renderVoteCreation("vote-create-container");
-            }
-        });
-    </script>
+    
 </body>
 
 </html>
