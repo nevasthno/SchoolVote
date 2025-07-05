@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Сторінка вчителя</title>
+    <title>Сторінка директора</title>
     <link rel="stylesheet" href="styles/main.css">
     <style>
         .nav-tabs {
@@ -90,7 +90,7 @@
 
 <body>
     <header>
-        <h1>Панель вчителя</h1>
+        <h1>Панель директора</h1>
         <button id="logoutButton" class="auth-button">Вийти</button>
         <button id="toggleThemeButton" class="theme-toggle-button">Змінити тему</button>
 
@@ -192,6 +192,16 @@
                 </select>
                 <button id="create-event-button">Створити подію</button>
             </section>
+            <section>
+            <h2>Створити опитування</h2>
+            <input id="poll-question" placeholder="Питання опитування">
+            <div id="poll-options">
+                <input class="poll-option" placeholder="Варіант 1">
+                <input class="poll-option" placeholder="Варіант 2">
+            </div>
+            <button onclick="addPollOption()">Додати варіант</button>
+            <button onclick="submitPoll()">Створити опитування</button>
+        </section>
         </section>
 
         <!-- Профіль -->
@@ -236,21 +246,13 @@
                 </form>
             </section>
         </section>
-        <section>
-            <h2>Створити опитування</h2>
-            <input id="poll-question" placeholder="Питання опитування">
-            <div id="poll-options">
-                <input class="poll-option" placeholder="Варіант 1">
-                <input class="poll-option" placeholder="Варіант 2">
-            </div>
-            <button onclick="addPollOption()">Додати варіант</button>
-            <button onclick="submitPoll()">Створити опитування</button>
-        </section>
+        
 
     </main>
 
     <script src="scripts/teacher.js"></script>
     <script src="scripts/vote.js"></script>
+    
 </body>
 
 </html>

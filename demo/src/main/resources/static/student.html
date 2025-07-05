@@ -148,6 +148,35 @@
         <button type="submit">Створити опитування</button>
     </form>
 </div>
+<div class="info-card">
+    <h2>Створити петицію</h2>
+    <form id="create-petition-form">
+        <label for="petition-title">Заголовок:</label>
+        <input type="text" id="petition-title" required>
+
+        <label for="petition-description">Опис:</label>
+        <textarea id="petition-description" rows="4" required></textarea>
+
+        <label for="petition-author">Ім’я автора:</label>
+        <input type="text" id="petition-author" required>
+
+        <label for="petition-target">Цільова аудиторія:</label>
+<select id="petition-target" required>
+  <option value="school">Вся школа</option>
+  <option value="9-А">9-А</option>
+  <option value="10-Б">10-Б</option>
+  <option value="11-В">11-В</option>
+</select>
+
+
+        <button type="submit">Створити петицію</button>
+    </form>
+</div>
+
+<div class="info-card">
+    <h2>Активні петиції</h2>
+    <div id="petition-list"></div>
+</div>
 
             
         </section>
@@ -194,18 +223,15 @@
         </section>
     </main>
 
-<<<<<<< HEAD
-<<<<<<< HEAD:demo/src/main/resources/static/main.html
     <script src="scripts/main.js"></script>
     <div id="event-modal" style="display:none"></div>
-=======
+
     <script src="scripts/student.js"></script>
     <script src="scripts/vote.js"></script>
->>>>>>> 541dc02fd8a10460b6850129037d2d038544bea9:demo/src/main/resources/static/student.html
-=======
+
     <script src="scripts/student.js"></script>
     <script src="scripts/vote.js"></script>
->>>>>>> 541dc02fd8a10460b6850129037d2d038544bea9
+    <script src="scripts/petition.js"></script>
 </body>
 
 </html>
