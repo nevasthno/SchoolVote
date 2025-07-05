@@ -1,5 +1,4 @@
-package com.example.demo.javaSrc.votingAndPetitions;
-
+package com.example.demo.javaSrc.petitions;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;

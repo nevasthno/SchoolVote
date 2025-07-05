@@ -1,5 +1,4 @@
-package com.example.demo.javaSrc.votingAndPetitions;
-
+package com.example.demo.javaSrc.petitions;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;

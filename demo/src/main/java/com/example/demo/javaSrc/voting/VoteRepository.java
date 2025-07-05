@@ -1,4 +1,4 @@
-package com.example.demo.javaSrc.votingAndPetitions;
+package com.example.demo.javaSrc.voting;
 
 import java.util.Optional;
 
@@ -23,4 +23,8 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     List<Vote> findByCreatedBy(Long createdBy);
 
     List<Vote> findByStartDateBetween(Date startDate, Date endDate);
+
+    // New finders for the new fields
+    List<Vote> findByVotingLevel(Vote.VotingLevel votingLevel);
+    List<Vote> findByStatus(Vote.VoteStatus status);
 }
