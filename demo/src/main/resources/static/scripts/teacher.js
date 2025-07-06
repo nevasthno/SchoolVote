@@ -1,7 +1,4 @@
-// Tab/page switching logic
-
-
-
+import { renderVoteCreation, renderAvailableVotes } from './vote.js';
 
 const themeToggleBtn = document.getElementById('toggleThemeButton');
 const isDark = localStorage.getItem('theme') === 'dark';
@@ -338,3 +335,5 @@ async function updateProfile(event) {
         alert("Не вдалося оновити профіль.");
     }
 }
+renderAvailableVotes('available-votes-container');
+renderVoteCreation('vote-create-container');

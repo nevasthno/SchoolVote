@@ -1,11 +1,4 @@
-
-
-
-
-
-
-
-
+import { renderVoteCreation, renderAvailableVotes } from './vote.js';
 const themeBtn = document.getElementById('toggleThemeButton');
   const savedTheme = localStorage.getItem('theme');
 
@@ -378,3 +371,5 @@ async function updateProfile(event) {
         alert("Не вдалося оновити профіль.");
     }
 }
+renderAvailableVotes('available-votes-container');
+renderVoteCreation('vote-create-container');

@@ -1,8 +1,4 @@
-// Tab/page switching logic
-
-
-
-
+import { renderVoteCreation, renderAvailableVotes } from './vote.js';
 const themeToggleBtn = document.getElementById('toggleThemeButton');
 const isDark = localStorage.getItem('theme') === 'dark';
 
@@ -228,30 +224,6 @@ async function initSchoolClassSelectors() {
     await loadStats();
 }
 
-async function loadStats() {
-    try {
-        const schoolSel = document.getElementById("school-select");
-        const classSel = document.getElementById("class-select");
-        let url = "/api/stats";
-        const params = [];
-        if (schoolSel && schoolSel.value) params.push(`schoolId=${schoolSel.value}`);
-        if (classSel && classSel.value) params.push(`classId=${classSel.value}`);
-        if (params.length) url += "?" + params.join("&");
-
-        const res = await fetchWithAuth(url);
-        if (!res.ok) throw new Error(res.status);
-        const stats = await res.json();
-        document.getElementById("stat-total-tasks").textContent = stats.totalTasks;
-        document.getElementById("stat-completed-tasks").textContent = stats.completedTasks;
-        document.getElementById("stat-total-events").textContent = stats.totalEvents;
-    } catch (e) {
-        document.getElementById("stat-total-tasks").textContent = "–";
-        document.getElementById("stat-completed-tasks").textContent = "–";
-        document.getElementById("stat-total-events").textContent = "–";
-        console.error("Помилка завантаження статистики:", e);
-    }
-}
-
 async function loadUsers() {
     try {
         const res = await fetchWithAuth("/api/loadUsers");
@@ -371,3 +343,6 @@ try {
     console.error("Помилка оновлення профілю", e);
     alert("Не вдалося оновити профіль.");
 }
+
+renderAvailableVotes('available-votes-container');
+renderVoteCreation('vote-create-container');
