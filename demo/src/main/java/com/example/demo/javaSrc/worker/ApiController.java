@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.javaSrc.comments.Comment;
+import com.example.demo.javaSrc.comments.CommentRepository;
+import com.example.demo.javaSrc.comments.CommentService;
 import com.example.demo.javaSrc.people.People;
 import com.example.demo.javaSrc.people.PeopleService;
 import com.example.demo.javaSrc.school.School;
@@ -43,6 +46,9 @@ public class ApiController {
     private final PetitionService petitionService;
     private final PetitionRepository petitionRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final CommentService commentService;
+    private final CommentRepository commentRepository;
+    
 
     @Autowired
     public ApiController(
@@ -52,7 +58,10 @@ public class ApiController {
             ClassService classService,
             VoteService voteService,
             PetitionService petitionService,
-            PetitionRepository petitionRepository) {
+            PetitionRepository petitionRepository,
+            CommentService commentService,
+            CommentRepository commentRepository
+            ) {
 
         this.peopleService = peopleService;
         this.passwordEncoder = passwordEncoder;
@@ -61,6 +70,8 @@ public class ApiController {
         this.voteService = voteService;
         this.petitionService = petitionService;
         this.petitionRepository = petitionRepository;
+        this.commentService = commentService;
+        this.commentRepository = commentRepository;
     }
 
     private People currentUser(Authentication auth) {
@@ -409,5 +420,44 @@ public class ApiController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    
+    @PostMapping("/comments")
+    public ResponseEntity<Comment> addComment(@RequestBody Comment comment) {
+        Comment saved = commentService.addComment(comment);
+        return ResponseEntity.ok(saved);
+    }
+
+    @GetMapping("/comments/{id}")
+    public ResponseEntity<Comment> getComment(@PathVariable Long id) {
+        Comment comment = commentService.getComment(id);
+        if (comment == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(comment);
+    }
+
+    @GetMapping("/comments/petition/{petitionId}")
+    public List<Comment> getCommentsByPetition(@PathVariable Long petitionId) {
+        return commentService.getCommentsByPetitionId(petitionId);
+    }
+
+    @GetMapping("/comments/user/{userId}")
+    public List<Comment> getCommentsByUser(@PathVariable Long userId) {
+        return commentService.getCommentsByUserId(userId);
+    }
+
+    @DeleteMapping("/comments/{id}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
+        commentService.deleteComment(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/comments/petition/{petitionId}")
+    public ResponseEntity<Void> deleteCommentsByPetition(@PathVariable Long petitionId) {
+        commentService.deleteCommentsByPetitionId(petitionId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/comments/user/{userId}")
+    public ResponseEntity<Void> deleteCommentsByUser(@PathVariable Long userId) {
+        commentService.deleteCommentsByUserId(userId);
+        return ResponseEntity.noContent().build();
+    }
 }

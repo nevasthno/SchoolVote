@@ -15,4 +15,5 @@ public interface PeopleRepository extends JpaRepository<People, Long> {
     List<People> findBySchoolIdAndClassId(Long schoolId, Long classId);
     List<People> findByRoleAndSchoolId(String role, Long schoolId);
     List<People> findByRoleAndSchoolIdAndClassId(String role, Long schoolId, Long classId);
+    Optional<People> findById(Long id);
 }
