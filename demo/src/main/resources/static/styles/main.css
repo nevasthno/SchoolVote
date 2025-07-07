@@ -226,8 +226,80 @@ header, .nav-tabs, main {
 }
 
 .info-card, form, .calendar-controls, .calendar-header, #calendar-view-container {
-    text-align: left; /* щоб зберегти вирівнювання всередині карток */
+    text-align: left;
     width: 100%;
-    max-width: 800px; /* або інша ширина, щоб не було надто широко */
+    max-width: 800px;
+}
+
+/* === VOTING LIST === */
+.vote-section {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  padding: 20px;
+  margin: 16px auto;
+  width: 100%;
+  max-width: 800px;
+  text-align: left;
+}
+
+.vote-section h3 {
+  font-size: 1.5em;
+  color: #2e7d32;
+  margin-bottom: 8px;
+}
+
+.vote-section p {
+  font-size: 1em;
+  margin-bottom: 12px;
+  line-height: 1.4;
+  color: #555;
+}
+
+.vote-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.vote-form label {
+  display: inline-flex;
+  align-items: flex;
+  gap: 8px;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+.vote-form input[type="radio"],
+.vote-form input[type="checkbox"] {
+  width: auto;
+  height: auto;
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: middle;
+  margin-top: 0
+}
+
+.vote-form button {
+  align-self: flex-start;
+  margin-top: 12px;
+  background-color: #43a047;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.vote-form button:hover {
+  background-color: #2e7d32;
+}
+
+.vote-result {
+  margin-left: 12px;
+  font-style: italic;
+  color: #666;
 }
 

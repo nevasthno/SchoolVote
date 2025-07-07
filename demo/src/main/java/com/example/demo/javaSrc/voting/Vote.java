@@ -6,6 +6,8 @@ import java.util.List; // For the @OneToMany relationship
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @Table(name = "voting")
 public class Vote {
@@ -76,6 +78,7 @@ public class Vote {
     private List<VotingVariant> variants;
 
     @OneToMany(mappedBy = "vote", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<VotingParticipant> participants;
 
     public Vote() {

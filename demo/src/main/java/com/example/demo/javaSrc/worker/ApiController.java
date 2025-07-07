@@ -359,7 +359,6 @@ public class ApiController {
     @PostMapping("voting/{votingId}/vote")
     public ResponseEntity<String> castVote(@PathVariable Long votingId, @RequestBody Vote request,
             Authentication auth) {
-        System.out.println("Received castVote: votingId=" + votingId + ", request=" + request);
         List<Long> variantIds = request.getVariants() != null
                 ? request.getVariants().stream().map(VotingVariant::getId).toList()
                 : List.of();

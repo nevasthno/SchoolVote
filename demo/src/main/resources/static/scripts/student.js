@@ -1,18 +1,8 @@
-import { renderVoteCreation, renderAvailableVotes } from './vote.js';
+import { renderAvailableVotes, renderVoteCreation } from './vote.js';
+import { fetchWithAuth } from './api.js';
 
 function logout() {
-  localStorage.removeItem("jwtToken");
   window.location.href = "login.html";
-}
-
-async function fetchWithAuth(url, opts = {}) {
-  const token = localStorage.getItem("jwtToken");
-  opts.headers = {
-    ...(opts.headers || {}),
-    "Authorization": `Bearer ${token}`,
-    "Content-Type": "application/json"
-  };
-  return fetch(url, opts);
 }
 
 let currentMonth, currentYear, currentDay, currentView = "month";
@@ -73,22 +63,13 @@ async function loadCalendarUserSelector() {
 
 async function updateCalendar() {
   let events = [];
-  let url = "/api/getEvents";
-  if (calendarUserId) url += `?userId=${calendarUserId}`;
   try {
-    const res = await fetchWithAuth(url);
     events = await res.json();
   } catch {
     events = [];
   }
   document.getElementById("calendar-table").style.display = "none";
-  document.getElementById("calendar-day-view").style.display = "none";
-  document.getElementById("calendar-week-view").style.display = "none";
-  document.getElementById("calendar-year-view").style.display = "none";
   if (currentView === "month") renderMonthView(events);
-  if (currentView === "week") renderWeekView(events);
-  if (currentView === "day") renderDayView(events);
-  if (currentView === "year") renderYearView(events);
 }
 
 function showEventModal(event) {
@@ -165,49 +146,6 @@ function renderMonthView(events) {
   attachEventClickHandlers(events, body);
 }
 
-function renderDayView(events) {
-  const container = document.getElementById("calendar-day-view");
-  container.style.display = "";
-  const key = `${currentYear}-${String(currentMonth+1).padStart(2,"0")}-${String(currentDay).padStart(2,"0")}`;
-  const dayEvents = events.filter(e => e.start_event?.startsWith(key));
-  container.innerHTML = dayEvents.length
-    ? dayEvents.map(ev => `<div class="event-card">${ev.title}</div>`).join("")
-    : "<div>Подій немає</div>";
-}
-
-function renderWeekView(events) {
-  const container = document.getElementById("calendar-week-view");
-  container.style.display = "";
-  const date = new Date(currentYear, currentMonth, currentDay);
-  const dayOfWeek = (date.getDay()+6)%7;
-  const monday = new Date(date);
-  monday.setDate(date.getDate() - dayOfWeek);
-  container.innerHTML = "";
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate()+i);
-    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-    const col = document.createElement("div");
-    col.innerHTML = `<b>${d.toLocaleDateString("uk-UA",{weekday:"short",day:"numeric"})}</b>`;
-    events.filter(e => e.start_event?.startsWith(key)).forEach(ev => {
-      const div = document.createElement("div");
-      div.className = "event-card";
-      div.textContent = ev.title;
-      col.appendChild(div);
-    });
-    container.appendChild(col);
-  }
-}
-
-function renderYearView(events) {
-  const container = document.getElementById("calendar-year-view");
-  container.style.display = "";
-  for (let m = 0; m < 12; m++) {
-    const monthDiv = document.createElement("div");
-    monthDiv.innerHTML = `<b>${new Date(currentYear,m).toLocaleString("uk-UA",{month:"long"})}</b>`;
-    container.appendChild(monthDiv);
-  }
-}
-
 async function loadProfile() {
   try {
     const res = await fetchWithAuth("/api/me");
@@ -280,8 +218,12 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("editProfileForm")
     ?.addEventListener("submit", updateProfile);
 
-  renderAvailableVotes('available-votes-container');
-  renderVoteCreation('vote-create-container');
+  if (document.getElementById('available-votes-container')) {
+    renderAvailableVotes('available-votes-container');
+  }
+  if (document.getElementById('vote-create-container')) {
+    renderVoteCreation('vote-create-container');
+  }
 });
 
 

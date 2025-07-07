@@ -1,4 +1,11 @@
 import { renderVoteCreation, renderAvailableVotes } from './vote.js';
+<<<<<<< HEAD
+=======
+import { fetchWithAuth } from './api.js';
+
+const themeToggleBtn = document.getElementById('toggleThemeButton');
+const isDark = localStorage.getItem('theme') === 'dark';
+>>>>>>> 84e96b24710af227c78d83ebb9d9f76b83e5da0e
 
 
 
@@ -36,22 +43,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-async function fetchWithAuth(url, opts = {}) {
-    const token = localStorage.getItem("jwtToken");
-    opts.headers = {
-        ...(opts.headers || {}),
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json"
-    };
-    return fetch(url, opts);
-}
-
 document.addEventListener("DOMContentLoaded", () => {
 
     const logoutBtn = document.getElementById("logoutButton");
     if (logoutBtn) {
         logoutBtn.addEventListener("click", () => {
-            localStorage.removeItem("jwtToken");
             window.location.href = "login.html";
         });
     }

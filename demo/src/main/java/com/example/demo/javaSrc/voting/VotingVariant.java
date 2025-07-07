@@ -1,5 +1,7 @@
 package com.example.demo.javaSrc.voting;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -12,6 +14,7 @@ public class VotingVariant {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "voting_id", nullable = false)
+    @JsonIgnore
     private Vote vote;
 
     @Column(name = "text", nullable = false)

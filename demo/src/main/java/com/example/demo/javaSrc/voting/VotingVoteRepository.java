@@ -12,5 +12,5 @@ public interface VotingVoteRepository extends JpaRepository<VotingVote, Long> {
     List<VotingVote> findByUserId(Long userId);
     Optional<VotingVote> findByVotingIdAndUserIdAndVariantId(Long votingId, Long userId, Long variantId);
     long countByVotingIdAndVariantId(Long votingId, Long variantId);
-    List<VotingVote> findByVotingIdAndUserId(Long votingId, Long userId); // New for single-choice check
+    List<VotingVote> findByVotingIdAndUserId(Long votingId, Long userId); 
 }
