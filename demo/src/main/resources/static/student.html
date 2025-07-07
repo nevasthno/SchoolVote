@@ -66,30 +66,15 @@
 
     <div class="nav-tabs">
         <button id="tab-main" class="active" type="button">🏠Головна інформація🏠</button>
-<button id="tab-about-system" type="button">Про систему</button>
-<button id="tab-profile" type="button">🛈Інформація про мене🛈</button>
-<button id="create" type="button">Створити</button>
+        <button id="tab-about-system" type="button">Про систему</button>
+        <button id="tab-profile" type="button">🛈Інформація про мене🛈</button>
+        <button id="create" type="button">Створити</button>
 
-        
     </div>
 
     <main>
         <!-- Головна вкладка -->
         <section id="main-page" class="page-section active">
-           
-<div class="info-card">
-                <h2>Опитування</h2>
-                <p id="poll-question-text">Немає активного опитування.</p>
-                <form id="poll-form" style="display:none">
-                    <div id="poll-options-list"></div>
-                    <button type="submit">Відправити відповідь</button>
-                </form>
-            </div>
-
-            <div class="info-card">
-                <h2>Голосування</h2>
-                <div id="available-votes-container"></div>
-            </div>
             <div class="info-card">
                 <h2>Календар подій</h2>
                 <div class="calendar-controls">
@@ -120,14 +105,13 @@
                         </thead>
                         <tbody id="calendar-body"></tbody>
                     </table>
-                    <div id="calendar-day-view" style="display:none;"></div>
-                    <div id="calendar-week-view" style="display:none;"></div>
-                    <div id="calendar-year-view" style="display:none;"></div>
+                </div>
+                <div class="info-card">
+                    <h2>Голосування</h2>
+                    <div id="available-votes-container"></div>
                 </div>
             </div>
 
-
-            
         </section>
 
         <!-- Профіль -->
@@ -191,16 +175,23 @@
   </div>
 </section>
 
+        <!--                         Про систему                   -->
+        <section id="about_system_page" class="page-section">
+            <div class="info-card">
+                <h2>🛈Про систему</h2>
+                <p>Ця система дозволяє організовувати та проводити голосування серед учнів школи, переглядати події та
+                    оновлювати інформацію про себе.</p>
+            </div>
 
 
 
         <!--         Створити голосування або петицію                   -->
 
-<section id="create_page" class="page-section">
-    <div class="info-card">
-        <div id="vote-create-container"></div>
-    </div>
-</section>
+        <section id="create_page" class="page-section">
+            <div class="info-card">
+                <div id="vote-create-container"></div>
+            </div>
+        </section>
 
 
 

@@ -2,9 +2,11 @@ package com.example.demo.javaSrc.worker;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -48,7 +50,6 @@ public class ApiController {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final CommentService commentService;
     private final CommentRepository commentRepository;
-    
 
     @Autowired
     public ApiController(
@@ -60,8 +61,7 @@ public class ApiController {
             PetitionService petitionService,
             PetitionRepository petitionRepository,
             CommentService commentService,
-            CommentRepository commentRepository
-            ) {
+            CommentRepository commentRepository) {
 
         this.peopleService = peopleService;
         this.passwordEncoder = passwordEncoder;
@@ -328,7 +328,8 @@ public class ApiController {
             return ResponseEntity.status(500).body(null);
         }
     }
-     @GetMapping("/votes")
+
+    @GetMapping("/votes")
     public List<Vote> getVotes(@RequestParam(required = false) Long schoolId,
             @RequestParam(required = false) Long classId) {
         if (classId != null && schoolId != null) {
@@ -339,6 +340,7 @@ public class ApiController {
             return voteService.getAllVotings();
         }
     }
+
     @GetMapping("voting/{id}")
     public ResponseEntity<Vote> getVotingById(@PathVariable Long id) {
         Vote vote = voteService.getVotingById(id);
@@ -356,27 +358,28 @@ public class ApiController {
         return new ResponseEntity<>(votings, HttpStatus.OK);
     }
 
-    @PostMapping("voting/{votingId}/vote")
-    public ResponseEntity<String> castVote(@PathVariable Long votingId, @RequestBody Vote request,
+    @PostMapping(value = "voting/{votingId}/vote", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> castVote(
+            @PathVariable Long votingId,
+            @RequestBody List<Long> variantIds,
             Authentication auth) {
-        List<Long> variantIds = request.getVariants() != null
-                ? request.getVariants().stream().map(VotingVariant::getId).toList()
-                : List.of();
 
-        Long userId = null;
-        if (auth != null) {
-            People user = currentUser(auth);
-            if (user != null) {
-                userId = user.getId();
-            }
+        Vote vote = voteService.getVotingById(votingId);
+        if (!vote.isMultipleChoice() && variantIds.size() > 1) {
+            return ResponseEntity
+                    .badRequest()
+                    .body("Це одно‑відповідне голосування, виберіть лише один варіант.");
         }
+
+        Long userId = currentUser(auth).getId();
 
         boolean success = voteService.recordVote(votingId, variantIds, userId);
         if (success) {
-            return new ResponseEntity<>("Vote recorded successfully", HttpStatus.OK);
+            return ResponseEntity.ok("Vote recorded successfully");
+        } else {
+            return ResponseEntity.badRequest()
+                    .body("Failed to record vote. Check voting status, eligibility, or if you already voted.");
         }
-        return new ResponseEntity<>("Failed to record vote. Check voting status, eligibility, or if you already voted.",
-                HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("voting/{votingId}/results")
@@ -428,7 +431,8 @@ public class ApiController {
     @GetMapping("/comments/{id}")
     public ResponseEntity<Comment> getComment(@PathVariable Long id) {
         Comment comment = commentService.getComment(id);
-        if (comment == null) return ResponseEntity.notFound().build();
+        if (comment == null)
+            return ResponseEntity.notFound().build();
         return ResponseEntity.ok(comment);
     }
 
