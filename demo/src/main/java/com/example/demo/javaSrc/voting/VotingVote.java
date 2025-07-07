@@ -37,12 +37,12 @@ public class VotingVote {
 
 
     public Long getId() { return id; }
-    public Vote getVoting() { return voting; }
+    public Vote getVote() { return voting; }
     public VotingVariant getVariant() { return variant; }
     public Long getUserId() { return userId; }
     public Date getVoteDate() { return voteDate; }
 
-    public void setVoting(Vote voting) { this.voting = voting; }
+    public void setVote(Vote voting) { this.voting = voting; }
     public void setVariant(VotingVariant variant) { this.variant = variant; }
     public void setUserId(Long userId) { this.userId = userId; }
     public void setVoteDate(Date voteDate) { this.voteDate = voteDate; }
