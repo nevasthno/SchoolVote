@@ -31,7 +31,9 @@ public class VotingVariant {
     public Long getId() {
         return id;
     }
-
+    public void setId(Long id) {
+        this.id = id;
+    }
     public Vote getVote() {
         return vote;
     }

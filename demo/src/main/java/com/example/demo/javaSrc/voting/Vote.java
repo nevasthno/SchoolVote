@@ -207,4 +207,8 @@ public class Vote {
     public void setMultipleChoice(boolean multipleChoice) {
         this.multipleChoice = multipleChoice;
     }
+
+    public void setId(Long id) {
+       this.id = id;
+    }
 }
