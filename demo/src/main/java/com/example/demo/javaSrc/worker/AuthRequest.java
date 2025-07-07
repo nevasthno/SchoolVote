@@ -11,4 +11,11 @@ public class AuthRequest {
     public void setEmail(String e)    { this.email = e; }
     public void setPassword(String p) { this.password = p; }
     public void setRole(String r)     { this.role = r; }
+
+    public AuthRequest(String email, String password, String role) {
+    this.email = email;
+    this.password = password;
+    this.role = role;
+}
+
 }
