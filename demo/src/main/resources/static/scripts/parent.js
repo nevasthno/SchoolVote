@@ -1,8 +1,7 @@
 import { renderVoteCreation, renderAvailableVotes } from './vote.js';
 import { fetchWithAuth } from './api.js';
 
-const themeBtn = document.getElementById('toggleThemeButton');
-  const savedTheme = localStorage.getItem('theme');
+
 
 
 let schoolId = null, classId = null;
@@ -290,3 +289,205 @@ async function updateProfile(event) {
 }
 renderAvailableVotes('available-votes-container');
 renderVoteCreation('vote-create-container');
+
+
+const $ = id => document.getElementById(id);
+
+// Словники
+const translations = {
+  ua: {
+    langButton: "🌐 English",
+    tabs: {
+      main: "Головна інформація",
+      profile: "Інформація про мене"
+    },
+    calendar: {
+      title: "Календар подій"
+    },
+    votes: {
+      title: "Голосування"
+    },
+    profile: {
+      title: "Про мене",
+      updateTitle: "Оновити профіль",
+      name: "Ім'я:",
+      surname: "Прізвище:",
+      birth: "Дата народження:",
+      about: "Про мене:",
+      email: "Email:",
+      role: "Роль:",
+      newPass: "Новий пароль:",
+      confirmPass: "Підтвердження пароля:",
+      updateBtn: "Оновити профіль"
+    }
+  },
+  en: {
+    langButton: "🌐 Українська",
+    tabs: {
+      main: "Main Info",
+      profile: "About Me"
+    },
+    calendar: {
+      title: "Event Calendar"
+    },
+    votes: {
+      title: "Voting"
+    },
+    profile: {
+      title: "About Me",
+      updateTitle: "Update Profile",
+      name: "Name:",
+      surname: "Surname:",
+      birth: "Date of Birth:",
+      about: "About Me:",
+      email: "Email:",
+      role: "Role:",
+      newPass: "New Password:",
+      confirmPass: "Confirm Password:",
+      updateBtn: "Update Profile"
+    }
+  }
+};
+
+let currentLang = localStorage.getItem("lang") || "ua";
+
+function applyLanguage(lang) {
+  const t = translations[lang];
+
+  // Кнопка мови
+  if ($("toggleLangBtn")) $("toggleLangBtn").textContent = t.langButton;
+
+  // Вкладки
+  if ($("tab-main")) $("tab-main").textContent = t.tabs.main;
+  if ($("tab-profile")) $("tab-profile").textContent = t.tabs.profile;
+
+  // Календар
+  const calendarHeader = document.querySelector("#calendar-section h2");
+  if (calendarHeader) calendarHeader.textContent = t.calendar.title;
+
+  // Голосування
+  const voteHeader = document.querySelector(".info-card h2");
+  if (voteHeader) voteHeader.textContent = t.votes.title;
+
+  // Про мене
+  const prof = t.profile;
+  if ($("profile-firstName")) $("profile-firstName").parentElement.childNodes[0].textContent = prof.name;
+  if ($("profile-lastName")) $("profile-lastName").parentElement.childNodes[0].textContent = prof.surname;
+  if ($("profile-dateOfBirth")) $("profile-dateOfBirth").parentElement.childNodes[0].textContent = prof.birth;
+  if ($("profile-aboutMe")) $("profile-aboutMe").parentElement.childNodes[0].textContent = prof.about;
+  if ($("profile-email")) $("profile-email").parentElement.childNodes[0].textContent = prof.email;
+  if ($("profile-role")) $("profile-role").parentElement.childNodes[0].textContent = prof.role;
+
+  const form = $("editProfileForm");
+  if (form) {
+    form.querySelector("label[for='edit-firstName']").textContent = prof.name;
+    form.querySelector("label[for='edit-lastName']").textContent = prof.surname;
+    form.querySelector("label[for='edit-aboutMe']").textContent = prof.about;
+    form.querySelector("label[for='edit-dateOfBirth']").textContent = prof.birth;
+    form.querySelector("label[for='edit-email']").textContent = prof.email;
+    form.querySelector("label[for='edit-password']").textContent = prof.newPass;
+    form.querySelector("label[for='confirm-password']").textContent = prof.confirmPass;
+    form.querySelector("button[type='submit']").textContent = prof.updateBtn;
+  }
+
+  const sectionTitle = document.querySelector("#profile-page h2");
+  if (sectionTitle) sectionTitle.textContent = prof.title;
+
+  const updateTitle = document.querySelector("#update-profile-info-section h2");
+  if (updateTitle) updateTitle.textContent = prof.updateTitle;
+}
+
+function toggleLanguage() {
+  currentLang = currentLang === "ua" ? "en" : "ua";
+  localStorage.setItem("lang", currentLang);
+  applyLanguage(currentLang);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Автоматичне додавання кнопки
+  if (!document.getElementById("toggleLangBtn")) {
+    const btn = document.createElement("button");
+    btn.id = "toggleLangBtn";
+    btn.className = "lang-toggle-button";
+    btn.textContent = translations[currentLang].langButton;
+    btn.style.marginLeft = "10px";
+    btn.addEventListener("click", toggleLanguage);
+
+    const container =
+      document.querySelector(".header-buttons") ||
+      document.querySelector("header");
+    if (container) container.appendChild(btn);
+  }
+
+  applyLanguage(currentLang);
+});
+
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const today = new Date();
+  let currentYear = today.getFullYear();
+  let currentMonth = today.getMonth();
+
+  const monthNames = [
+    "Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
+    "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"
+  ];
+
+  const monthNameSpan = document.getElementById("month-name");
+  const calendarBody = document.getElementById("calendar-body");
+
+  function renderCalendar() {
+    calendarBody.innerHTML = "";
+    monthNameSpan.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay(); // Нд = 0
+    const startDay = (firstDay + 6) % 7; // Зсув так, щоб Пн = 0
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    let date = 1;
+
+    for (let i = 0; i < 6; i++) {
+      const row = document.createElement("tr");
+
+      for (let j = 0; j < 7; j++) {
+        const cell = document.createElement("td");
+        if (i === 0 && j < startDay) {
+          cell.textContent = "";
+        } else if (date > daysInMonth) {
+          cell.textContent = "";
+        } else {
+          cell.textContent = date;
+          date++;
+        }
+        row.appendChild(cell);
+      }
+
+      calendarBody.appendChild(row);
+    }
+  }
+
+  // Обробники кнопок
+  document.getElementById("prev-month").addEventListener("click", () => {
+    currentMonth--;
+    if (currentMonth < 0) {
+      currentMonth = 11;
+      currentYear--;
+    }
+    renderCalendar();
+  });
+
+  document.getElementById("next-month").addEventListener("click", () => {
+    currentMonth++;
+    if (currentMonth > 11) {
+      currentMonth = 0;
+      currentYear++;
+    }
+    renderCalendar();
+  });
+
+  // Ініціалізація
+  renderCalendar();
+});

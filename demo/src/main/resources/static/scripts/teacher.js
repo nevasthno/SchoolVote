@@ -314,3 +314,218 @@ async function updateProfile(event) {
 }
 renderAvailableVotes('available-votes-container');
 renderVoteCreation('vote-create-container');
+
+
+
+const $ = id => document.getElementById(id);
+
+const translations = {
+  ua: {
+    langButton: "🌐 English",
+    tabs: {
+      users: "Користувачі",
+      create: "Додавання/Статистика",
+      profile: "Профіль"
+    },
+    users: {
+      title: "Список користувачів",
+      editTitle: "Редагувати користувача",
+      save: "Зберегти",
+      cancel: "Скасувати"
+    },
+    create: {
+      school: "Школа:",
+      class: "Клас:",
+      createTitle: "Створити користувача",
+      place: {
+        first: "Ім’я",
+        last: "Прізвище",
+        email: "Email",
+        pass: "Пароль",
+        about: "Про себе",
+        dob: "Дата народження"
+      },
+      role: {
+        label: "Оберіть роль",
+        teacher: "Вчитель",
+        student: "Учень",
+        parent: "Батьки"
+      },
+      btn: "Створити користувача",
+      voteTitle: "Голосування"
+    },
+    profile: {
+      title: "Інформація про профіль",
+      update: "Оновити профіль",
+      fields: {
+        name: "Ім'я:",
+        last: "Прізвище:",
+        dob: "Дата народження:",
+        about: "Про мене:",
+        email: "Email:",
+        role: "Роль:"
+      },
+      form: {
+        newPass: "Новий пароль:",
+        confirm: "Підтвердження пароля:",
+        btn: "Оновити профіль"
+      }
+    }
+  },
+  en: {
+    langButton: "🌐 Українська",
+    tabs: {
+      users: "Users",
+      create: "Create/Stats",
+      profile: "Profile"
+    },
+    users: {
+      title: "User List",
+      editTitle: "Edit User",
+      save: "Save",
+      cancel: "Cancel"
+    },
+    create: {
+      school: "School:",
+      class: "Class:",
+      createTitle: "Create User",
+      place: {
+        first: "First Name",
+        last: "Last Name",
+        email: "Email",
+        pass: "Password",
+        about: "About Me",
+        dob: "Date of Birth"
+      },
+      role: {
+        label: "Select Role",
+        teacher: "Teacher",
+        student: "Student",
+        parent: "Parent"
+      },
+      btn: "Create User",
+      voteTitle: "Voting"
+    },
+    profile: {
+      title: "Profile Info",
+      update: "Update Profile",
+      fields: {
+        name: "Name:",
+        last: "Surname:",
+        dob: "Date of Birth:",
+        about: "About Me:",
+        email: "Email:",
+        role: "Role:"
+      },
+      form: {
+        newPass: "New Password:",
+        confirm: "Confirm Password:",
+        btn: "Update Profile"
+      }
+    }
+  }
+};
+
+let currentLang = localStorage.getItem("lang") || "ua";
+
+function applyLanguage(lang) {
+  const t = translations[lang];
+
+  if ($("toggleLangBtn")) $("toggleLangBtn").textContent = t.langButton;
+
+  // Tabs
+  if ($("tab-users")) $("tab-users").textContent = t.tabs.users;
+  if ($("tab-create")) $("tab-create").textContent = t.tabs.create;
+  if ($("tab-profile")) $("tab-profile").textContent = t.tabs.profile;
+
+  // Users section
+  const usersTitle = document.querySelector("#users-page h2");
+  if (usersTitle) usersTitle.textContent = t.users.title;
+  if ($("edit-user-section")) {
+    $("edit-user-section").querySelector("h3").textContent = t.users.editTitle;
+    $("edit-user-form").querySelector("button[type='submit']").textContent = t.users.save;
+    $("cancel-edit").textContent = t.users.cancel;
+  }
+
+  // Create section
+  const labels = document.querySelectorAll("#selection-section label");
+  if (labels.length >= 2) {
+    labels[0].childNodes[0].textContent = t.create.school + " ";
+    labels[1].childNodes[0].textContent = t.create.class + " ";
+  }
+  const createTitle = document.querySelector("#create-page h2");
+  if (createTitle) createTitle.textContent = t.create.createTitle;
+
+  $("new-user-first").placeholder = t.create.place.first;
+  $("new-user-last").placeholder = t.create.place.last;
+  $("new-user-email").placeholder = t.create.place.email;
+  $("new-user-pass").placeholder = t.create.place.pass;
+  $("new-user-aboutMe").placeholder = t.create.place.about;
+  $("new-user-dateOfBirth").placeholder = t.create.place.dob;
+
+  const roleSelect = $("new-user-role");
+  if (roleSelect) {
+    roleSelect.options[0].text = t.create.role.label;
+    roleSelect.options[1].text = t.create.role.teacher;
+    roleSelect.options[2].text = t.create.role.student;
+    roleSelect.options[3].text = t.create.role.parent;
+  }
+
+  $("create-user-button").textContent = t.create.btn;
+
+  const voteH2 = document.querySelector("#create-page .info-card h2");
+  if (voteH2) voteH2.textContent = t.create.voteTitle;
+
+  // Profile
+  const profileSection = $("profile-info");
+  if (profileSection) {
+    const spans = profileSection.querySelectorAll("p");
+    spans[0].childNodes[0].textContent = t.profile.fields.name;
+    spans[1].childNodes[0].textContent = t.profile.fields.last;
+    spans[2].childNodes[0].textContent = t.profile.fields.dob;
+    spans[3].childNodes[0].textContent = t.profile.fields.about;
+    spans[4].childNodes[0].textContent = t.profile.fields.email;
+    spans[5].childNodes[0].textContent = t.profile.fields.role;
+  }
+
+  const form = $("editProfileForm");
+  if (form) {
+    form.querySelector("label[for='edit-firstName']").textContent = t.profile.fields.name;
+    form.querySelector("label[for='edit-lastName']").textContent = t.profile.fields.last;
+    form.querySelector("label[for='edit-aboutMe']").textContent = t.profile.fields.about;
+    form.querySelector("label[for='edit-dateOfBirth']").textContent = t.profile.fields.dob;
+    form.querySelector("label[for='edit-email']").textContent = t.profile.fields.email;
+    form.querySelector("label[for='edit-password']").textContent = t.profile.form.newPass;
+    form.querySelector("label[for='confirm-password']").textContent = t.profile.form.confirm;
+    form.querySelector("button[type='submit']").textContent = t.profile.form.btn;
+  }
+
+  const profTitles = document.querySelectorAll("#profile-section h2");
+  if (profTitles.length >= 2) {
+    profTitles[0].textContent = t.profile.title;
+    profTitles[1].textContent = t.profile.update;
+  }
+}
+
+function toggleLanguage() {
+  currentLang = currentLang === "ua" ? "en" : "ua";
+  localStorage.setItem("lang", currentLang);
+  applyLanguage(currentLang);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (!document.getElementById("toggleLangBtn")) {
+    const btn = document.createElement("button");
+    btn.id = "toggleLangBtn";
+    btn.className = "lang-toggle-button";
+    btn.style.marginLeft = "10px";
+    btn.addEventListener("click", toggleLanguage);
+
+    const logoutBtn = document.getElementById("logoutButton");
+    if (logoutBtn && logoutBtn.parentElement) {
+      logoutBtn.parentElement.appendChild(btn);
+    }
+  }
+
+  applyLanguage(currentLang);
+});

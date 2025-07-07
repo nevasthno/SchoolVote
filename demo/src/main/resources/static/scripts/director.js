@@ -328,3 +328,111 @@ try {
 
 renderAvailableVotes('available-votes-container');
 renderVoteCreation('vote-create-container');
+
+
+// ===== Переклад для директора =====
+const $ = id => document.getElementById(id);
+
+const translations = {
+  ua: {
+    langButton: "🌐 English",
+    tabs: {
+      users: "Користувачі",
+      create: "Додавання/Статистика",
+      profile: "Профіль"
+    },
+    profile: {
+      title: "Інформація про профіль",
+      update: "Оновити профіль",
+      name: "Ім'я:",
+      surname: "Прізвище:",
+      birth: "Дата народження:",
+      about: "Про мене:",
+      email: "Email:",
+      role: "Роль:",
+      newPass: "Новий пароль:",
+      confirmPass: "Підтвердження пароля:",
+      saveBtn: "Оновити профіль"
+    }
+  },
+  en: {
+    langButton: "🌐 Українська",
+    tabs: {
+      users: "Users",
+      create: "Add/Statistics",
+      profile: "Profile"
+    },
+    profile: {
+      title: "Profile Information",
+      update: "Update Profile",
+      name: "Name:",
+      surname: "Surname:",
+      birth: "Date of Birth:",
+      about: "About Me:",
+      email: "Email:",
+      role: "Role:",
+      newPass: "New Password:",
+      confirmPass: "Confirm Password:",
+      saveBtn: "Update Profile"
+    }
+  }
+};
+
+let currentLang = localStorage.getItem("lang") || "ua";
+
+function applyLanguage(lang) {
+  const t = translations[lang];
+
+  if ($("toggleLangBtn")) $("toggleLangBtn").textContent = t.langButton;
+  if ($("tab-users")) $("tab-users").textContent = t.tabs.users;
+  if ($("tab-create")) $("tab-create").textContent = t.tabs.create;
+  if ($("tab-profile")) $("tab-profile").textContent = t.tabs.profile;
+
+  // Профіль
+  if ($("profile-firstName")) $("profile-firstName").parentElement.childNodes[0].textContent = t.profile.name;
+  if ($("profile-lastName")) $("profile-lastName").parentElement.childNodes[0].textContent = t.profile.surname;
+  if ($("profile-dateOfBirth")) $("profile-dateOfBirth").parentElement.childNodes[0].textContent = t.profile.birth;
+  if ($("profile-aboutMe")) $("profile-aboutMe").parentElement.childNodes[0].textContent = t.profile.about;
+  if ($("profile-email")) $("profile-email").parentElement.childNodes[0].textContent = t.profile.email;
+  if ($("profile-role")) $("profile-role").parentElement.childNodes[0].textContent = t.profile.role;
+
+  const form = $("editProfileForm");
+  if (form) {
+    form.querySelector("label[for='edit-firstName']").textContent = t.profile.name;
+    form.querySelector("label[for='edit-lastName']").textContent = t.profile.surname;
+    form.querySelector("label[for='edit-aboutMe']").textContent = t.profile.about;
+    form.querySelector("label[for='edit-dateOfBirth']").textContent = t.profile.birth;
+    form.querySelector("label[for='edit-email']").textContent = t.profile.email;
+    form.querySelector("label[for='edit-password']").textContent = t.profile.newPass;
+    form.querySelector("label[for='confirm-password']").textContent = t.profile.confirmPass;
+    form.querySelector("button[type='submit']").textContent = t.profile.saveBtn;
+  }
+
+  const updateTitle = form?.parentElement?.querySelector("h2");
+  if (updateTitle) updateTitle.textContent = t.profile.update;
+
+  const infoTitle = document.querySelector("#profile-info h2");
+  if (infoTitle) infoTitle.textContent = t.profile.title;
+}
+
+function toggleLanguage() {
+  currentLang = currentLang === "ua" ? "en" : "ua";
+  localStorage.setItem("lang", currentLang);
+  applyLanguage(currentLang);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (!$("toggleLangBtn")) {
+    const btn = document.createElement("button");
+    btn.id = "toggleLangBtn";
+    btn.className = "lang-toggle-button";
+    btn.textContent = translations[currentLang].langButton;
+    btn.style.marginLeft = "10px";
+    btn.addEventListener("click", toggleLanguage);
+
+    const container = document.querySelector("header") || document.body;
+    container.appendChild(btn);
+  }
+
+  applyLanguage(currentLang);
+});
