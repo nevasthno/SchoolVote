@@ -1,14 +1,6 @@
-async function fetchWithAuth(url, opts = {}) {
-  const token = localStorage.getItem("jwtToken");
-  opts.headers = {
-    ...(opts.headers || {}),
-    "Authorization": `Bearer ${token}`,
-    "Content-Type": "application/json"
-  };
-  return fetch(url, opts);
-}
+import { fetchWithAuth } from './api.js';
 
-async function renderVoteCreation(containerId) {
+export async function renderVoteCreation(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
@@ -59,12 +51,10 @@ async function renderVoteCreation(containerId) {
       const resp = await fetchWithAuth(url);
       let list = await resp.json();
 
-      // на всякий случай отфильтруем на клиенте
       if (classId) {
         list = list.filter(u => u.classId === +classId);
       }
 
-      // убираем дубли
       const seen = new Set();
       list = list.filter(u => {
         if (seen.has(u.id)) return false;
@@ -144,10 +134,10 @@ async function renderVoteCreation(containerId) {
       return;
     }
     const levelMap = {
-      SCHOOL: 'SCHOOL',
-      CLASS: 'ACLASS',
-      TEACHERS_GROUP: 'TEACHERS_GROUP',
-      SELECTED: 'SELECTED_USERS'
+        SCHOOL:         'SCHOOL',
+        CLASS:          'ACLASS',
+        TEACHERS_GROUP: 'TEACHERS_GROUP',
+        SELECTED:       'SELECTED_USERS'
     };
     const data = {
       schoolId:    user.schoolId,
@@ -200,7 +190,7 @@ async function renderVoteCreation(containerId) {
   };
 }
 
-async function renderClassDropdown(extraDiv, schoolId, userClassId) {
+export async function renderClassDropdown(extraDiv, schoolId, userClassId) {
   extraDiv.innerHTML = 'Завантаження класів...';
   try {
     const resp = await fetchWithAuth(`/api/classes?schoolId=${schoolId}`);
@@ -224,82 +214,104 @@ async function renderClassDropdown(extraDiv, schoolId, userClassId) {
   }
 }
 
-async function renderAvailableVotes(containerId) {
+export async function renderAvailableVotes(containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  container.innerHTML = '<div>Завантаження голосувань...</div>';
+  container.innerHTML = '<div>Завантаження голосувань…</div>';
+
   let user;
   try {
-    const resp = await fetchWithAuth('/api/me');
-    user = await resp.json();
+    const me = await fetchWithAuth('/api/me');
+    user = await me.json();
   } catch {
-    container.innerHTML = '<div>Не вдалося отримати інформацію про користувача.</div>';
+    container.innerHTML = '<div>Будь ласка, увійдіть.</div>';
     return;
   }
+
+  let votes;
   try {
-    const url = `/api/voting/user/${user.id}?schoolId=${user.schoolId}` +
-                (user.classId ? `&classId=${user.classId}` : '');
+    const url = `/api/votes?schoolId=${user.schoolId}`;
     const resp = await fetchWithAuth(url);
-    const votes = await resp.json();
-    if (!votes.length) {
-      container.innerHTML = '<div>Немає доступних голосувань.</div>';
-      return;
+    if (!resp.ok) throw new Error(`Status ${resp.status}`);
+    votes = await resp.json();
+  } catch (err) {
+    console.error('Не вдалося завантажити голосування:', err);
+    container.innerHTML = '<div>Не вдалося завантажити голосування.</div>';
+    return;
+  }
+
+  votes = votes.filter(vote => {
+    switch (vote.votingLevel) {
+      case 'SCHOOL':
+        return true;
+
+      case 'ACLASS':
+        return vote.classId === user.classId;
+
+      case 'TEACHERS_GROUP':
+      case 'SELECTED_USERS':
+        return vote.participants
+                   .some(p => p.userId === user.id);
+
+      default:
+        return false;
     }
-    container.innerHTML = votes.map(vote => `
+  });
+
+  if (!votes.length) {
+    container.innerHTML = '<div>Немає доступних голосувань.</div>';
+    return;
+  }
+
+
+  container.innerHTML = votes.map(vote => {
+    let rawOptions = [];
+    try {
+      rawOptions = JSON.parse(vote.variantsJson || '[]');
+    } catch {}
+    return `
       <section class="vote-section">
         <h3>${vote.title}</h3>
         <p>${vote.description||''}</p>
         <form class="vote-form" data-vote-id="${vote.id}">
-          ${vote.variants.map(variant => `
+          ${rawOptions.map((text, idx) => `
             <label>
               <input type="${vote.multipleChoice?'checkbox':'radio'}"
-                     name="variant"
-                     value="${variant.id}">
-              ${variant.text}
+                     name="variant" value="${idx}">
+              ${text}
             </label><br>`).join('')}
           <button type="submit">Проголосувати</button>
           <span class="vote-result"></span>
         </form>
-      </section>`).join('');
+      </section>`;
+  }).join('');
 
-    container.querySelectorAll('.vote-form').forEach(form => {
-      form.onsubmit = async e => {
-        e.preventDefault();
-        const voteId = form.dataset.voteId;
-        const selected = Array.from(
-          form.querySelectorAll('input[name="variant"]:checked')
-        ).map(i => Number(i.value));
-        if (!selected.length) {
-          form.querySelector('.vote-result').textContent = 'Оберіть варіант!';
-          return;
+  container.querySelectorAll('.vote-form').forEach(form => {
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const voteId = form.dataset.voteId;
+      const selected = Array.from(
+        form.querySelectorAll('input[name="variant"]:checked')
+      ).map(i => Number(i.value));
+      if (!selected.length) {
+        form.querySelector('.vote-result').textContent = 'Оберіть варіант!';
+        return;
+      }
+      try {
+        const resp = await fetchWithAuth(`/api/voting/${voteId}/vote`, {
+          method: 'POST',
+          body: JSON.stringify({ variants: selected.map(id => ({ id })) })
+        });
+        if (resp.ok) {
+          form.querySelector('.vote-result').textContent = 'Голос зараховано!';
+          form.querySelector('button').disabled = true;
+        } else {
+          const err = await resp.text().catch(() => '');
+          form.querySelector('.vote-result').textContent = 'Помилка: ' + err;
         }
-        try {
-          const resp = await fetchWithAuth(`/api/voting/${voteId}/vote`, {
-            method: 'POST',
-            body: JSON.stringify({ variants: selected.map(id => ({ id })) })
-          });
-          if (resp.ok) {
-            form.querySelector('.vote-result').textContent = 'Голос зараховано!';
-            form.querySelector('button').disabled = true;
-          } else {
-            const err = await resp.text();
-            form.querySelector('.vote-result').textContent = 'Помилка: ' + err;
-          }
-        } catch {
-          form.querySelector('.vote-result').textContent = 'Помилка з’єднання.';
-        }
-      };
+      } catch {
+        form.querySelector('.vote-result').textContent = 'Помилка з’єднання.';
+      }
     });
-  } catch {
-    container.innerHTML = '<div>Не вдалося завантажити голосування.</div>';
-  }
+  });
 }
-
-const levelMap = {
-  SCHOOL: 'school',
-  CLASS: 'aclass',
-  TEACHERS_GROUP: 'teachers_group',
-  SELECTED: 'selected_users'
-};
-
-export { fetchWithAuth, renderVoteCreation, renderAvailableVotes, levelMap };

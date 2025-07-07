@@ -40,10 +40,16 @@ CREATE TABLE IF NOT EXISTS `voting` (
     `end_date` DATETIME NOT NULL,
     `created_by` BIGINT NOT NULL,
     `multiple_choice` BOOLEAN NOT NULL DEFAULT FALSE,
-    `voting_level` ENUM('school', 'aclass', 'teachers_group', 'selected_users') NOT NULL DEFAULT 'school',
+    `voting_level` ENUM(
+        'SCHOOL',
+        'ACLASS',
+        'TEACHERS_GROUP',
+        'SELECTED_USERS'
+    ) NOT NULL DEFAULT 'SCHOOL',
     `status` ENUM('OPEN', 'CLOSED') NOT NULL DEFAULT 'OPEN',
     `variants` JSON NOT NULL
 ) ENGINE=InnoDB;
+
 
 
 CREATE TABLE IF NOT EXISTS `voting_variant` (

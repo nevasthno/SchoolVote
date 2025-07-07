@@ -90,12 +90,6 @@
             <div class="info-card">
                 <h2>Календар подій</h2>
                 <div class="calendar-controls">
-                    <div class="calendar-views">
-                        <button id="calendar-view-day">День</button>
-                        <button id="calendar-view-week">Тиждень</button>
-                        <button id="calendar-view-month" class="active">Місяць</button>
-                        <button id="calendar-view-year">Рік</button>
-                    </div>
                     <div>
                         <label for="calendar-user-select">Переглянути календар користувача:</label>
                         <select id="calendar-user-select">
@@ -127,15 +121,6 @@
                     <div id="calendar-week-view" style="display:none;"></div>
                     <div id="calendar-year-view" style="display:none;"></div>
                 </div>
-            </div>
-
-            <div class="info-card">
-                <h2>Опитування</h2>
-                <p id="poll-question-text">Немає активного опитування.</p>
-                <form id="poll-form" style="display:none">
-                    <div id="poll-options-list"></div>
-                    <button type="submit">Відправити відповідь</button>
-                </form>
             </div>
 
             <div class="info-card">
@@ -190,7 +175,6 @@
     </main>
 
     <script type="module" src="scripts/student.js"></script>
-    <script type="module" src="scripts/vote.js"></script>
 
 </body>
 

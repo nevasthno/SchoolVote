@@ -1,4 +1,6 @@
 import { renderVoteCreation, renderAvailableVotes } from './vote.js';
+import { fetchWithAuth } from './api.js';
+
 const themeBtn = document.getElementById('toggleThemeButton');
   const savedTheme = localStorage.getItem('theme');
 
@@ -11,15 +13,6 @@ const themeBtn = document.getElementById('toggleThemeButton');
     const isDark = document.body.classList.contains('dark-theme');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
   });
-
-async function fetchWithAuth(url, opts = {}) {
-    const token = localStorage.getItem("jwtToken");
-    opts.headers = {
-        ...(opts.headers || {}),
-        "Authorization": `Bearer ${token}`
-    };
-    return fetch(url, opts);
-}
 
 let schoolId = null, classId = null;
 let currentMonth, currentYear;
@@ -56,7 +49,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const logoutBtn = document.getElementById("logoutButton");
     if (logoutBtn) {
         logoutBtn.addEventListener("click", () => {
-            localStorage.removeItem("jwtToken");
             window.location.href = "login.html";
         });
     }
@@ -121,41 +113,6 @@ async function initSelectors() {
     await initCalendar();
 }
 
-async function loadInvitations() {
-    const list = document.getElementById("invitations-list");
-    if (!list) return;
-    list.innerHTML = "";
-    let events = [];
-    try {
-        // Filter by school/class if available
-        const qs = new URLSearchParams();
-        if (schoolId) qs.set("schoolId", schoolId);
-        if (classId) qs.set("classId", classId);
-        const res = await fetchWithAuth("/api/getEvents?" + qs);
-        events = await res.json();
-    } catch (e) {
-        list.innerHTML = "<li>Не вдалося завантажити події</li>";
-        return;
-    }
-    // Accept both event_type and eventType for compatibility
-    const filtered = events.filter(e =>
-        e.event_type === "PARENTS_MEETING" ||
-        (e.event_type && e.event_type.name === "PARENTS_MEETING") ||
-        e.eventType === "PARENTS_MEETING"
-    );
-    if (filtered.length === 0) {
-        list.innerHTML = "<li>Немає запрошень</li>";
-        return;
-    }
-    filtered
-        .sort((a, b) => new Date(a.start_event) - new Date(b.start_event))
-        .forEach(e => {
-            const dt = new Date(e.start_event);
-            const li = document.createElement("li");
-            li.textContent = `${e.title} — ${dt.toLocaleDateString("uk")}, ${dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-            list.appendChild(li);
-        });
-}
 
 async function initCalendar() {
     const now = new Date();
@@ -231,34 +188,11 @@ function showEventModal(event) {
     modal.style.display = "flex";
 }
 
-// --- Attach click handlers to event spans ---
-function attachEventClickHandlers(events, parent) {
-    if (!parent) return;
-    // Map events by id for fast lookup
-    const byId = {};
-    events.forEach(ev => { if (ev.id) byId[ev.id] = ev; });
-    parent.querySelectorAll("span.event[data-event-id]").forEach(span => {
-        span.onclick = (e) => {
-            e.stopPropagation();
-            const id = span.getAttribute("data-event-id");
-            if (byId[id]) showEventModal(byId[id]);
-        };
-    });
-}
 
-// --- Patch updateCalendar to add data-event-id and click ---
 async function updateCalendar() {
-    // Filter by school/class if available
     const qs = new URLSearchParams();
     if (schoolId) qs.set("schoolId", schoolId);
     if (classId) qs.set("classId", classId);
-    let events = [];
-    try {
-        const res = await fetchWithAuth("/api/getEvents?" + qs);
-        events = await res.json();
-    } catch (e) {
-        events = [];
-    }
 
     const mm = document.getElementById("month-name");
     const body = document.getElementById("calendar-body");
@@ -266,14 +200,6 @@ async function updateCalendar() {
     if (body) body.style.display = "";
     if (!mm || !body) return;
 
-    // Parse event dates for fast lookup
-    const eventsByDay = {};
-    events.forEach(ev => {
-        if (!ev.start_event) return;
-        const dateStr = ev.start_event.slice(0, 10);
-        eventsByDay[dateStr] = eventsByDay[dateStr] || [];
-        eventsByDay[dateStr].push(ev);
-    });
 
     body.innerHTML = "";
     mm.textContent = new Intl.DateTimeFormat("uk", { month: "long", year: "numeric" })

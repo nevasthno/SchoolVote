@@ -1,5 +1,7 @@
 package com.example.demo.javaSrc.voting;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -12,10 +14,11 @@ public class VotingParticipant {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "voting_id", nullable = false)
+    @JsonBackReference
     private Vote vote;
 
     @Column(name = "user_id", nullable = false)
-    private Long userId; // Assuming you have a User entity and table
+    private Long userId;
 
     public VotingParticipant() {
     }
