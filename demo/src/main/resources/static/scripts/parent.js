@@ -1,11 +1,8 @@
 import { renderVoteCreation, renderAvailableVotes } from './vote.js';
-<<<<<<< HEAD
-=======
 import { fetchWithAuth } from './api.js';
 
 const themeBtn = document.getElementById('toggleThemeButton');
   const savedTheme = localStorage.getItem('theme');
->>>>>>> 84e96b24710af227c78d83ebb9d9f76b83e5da0e
 
 
 let schoolId = null, classId = null;
