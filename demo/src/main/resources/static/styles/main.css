@@ -303,3 +303,27 @@ header, .nav-tabs, main {
   color: #666;
 }
 
+
+
+
+
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin: 10px;
+}
+
+.auth-button, .theme-toggle-button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  background: #4caf50;
+  color: white;
+}
+
+.auth-button:hover, .theme-toggle-button:hover {
+  background: #45a049;
+}

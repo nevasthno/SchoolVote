@@ -258,3 +258,200 @@ const tabButtons = document.querySelectorAll(".nav-tabs button");
             }
         });
     });
+
+
+
+
+
+// ===== Переклади =====
+const $ = id => document.getElementById(id);
+
+// Словники перекладу
+const translations = {
+  ua: {
+    langButton: "🌐 English",
+    tabs: {
+      main: "🏠Головна інформація🏠",
+      about: "Про систему",
+      profile: "🛈Інформація про мене🛈",
+      create: "Створити"
+    },
+    main: {
+      pollTitle: "Опитування",
+      noPoll: "Немає активного опитування.",
+      pollButton: "Відправити відповідь",
+      voteTitle: "Голосування",
+      calendarTitle: "Календар подій",
+      calendarLabel: "Переглянути календар користувача:"
+    },
+    about: {
+      title: "🛈Про систему",
+      text: "Ця система дозволяє організовувати та проводити голосування серед учнів школи, переглядати події та оновлювати інформацію про себе.",
+      howTitle: "⯑Як користуватись",
+      howList: [
+        "Авторизуйтесь у системі.",
+        "Перейдіть до \"Інформація про мене\" для редагування профілю.",
+        "Переглядайте події у календарі.",
+        "Голосуйте в активних опитуваннях."
+      ]
+    },
+    profile: {
+      title: "Інформація про учня",
+      update: "Оновити інформацію",
+      name: "Ім'я:",
+      surname: "Прізвище:",
+      birth: "Дата народження:",
+      about: "Про мене:",
+      email: "Email:",
+      role: "Роль:",
+      newPass: "Новий пароль:",
+      confirmPass: "Підтвердження пароля:",
+      saveBtn: "Оновити профіль"
+    },
+    create: {
+      title: "Створити голосування або петицію"
+    }
+  },
+  en: {
+    langButton: "🌐 Українська",
+    tabs: {
+      main: "🏠Main Info🏠",
+      about: "About the System",
+      profile: "🛈About Me🛈",
+      create: "Create"
+    },
+    main: {
+      pollTitle: "Poll",
+      noPoll: "No active poll.",
+      pollButton: "Submit Answer",
+      voteTitle: "Voting",
+      calendarTitle: "Event Calendar",
+      calendarLabel: "View calendar of user:"
+    },
+    about: {
+      title: "🛈About the System",
+      text: "This system allows organizing and conducting voting among school students, viewing events, and updating personal information.",
+      howTitle: "⯑How to Use",
+      howList: [
+        "Log in to the system.",
+        "Go to \"About Me\" to edit your profile.",
+        "View events in the calendar.",
+        "Vote in active polls."
+      ]
+    },
+    profile: {
+      title: "Student Information",
+      update: "Update Information",
+      name: "Name:",
+      surname: "Surname:",
+      birth: "Date of Birth:",
+      about: "About Me:",
+      email: "Email:",
+      role: "Role:",
+      newPass: "New Password:",
+      confirmPass: "Confirm Password:",
+      saveBtn: "Update Profile"
+    },
+    create: {
+      title: "Create Poll or Petition"
+    }
+  }
+};
+
+let currentLang = localStorage.getItem("lang") || "ua";
+
+function applyLanguage(lang) {
+  const t = translations[lang];
+
+  // Кнопка мови
+  if ($("toggleLangBtn")) $("toggleLangBtn").textContent = t.langButton;
+
+  // Вкладки
+  if ($("tab-main")) $("tab-main").textContent = t.tabs.main;
+  if ($("tab-about-system")) $("tab-about-system").textContent = t.tabs.about;
+  if ($("tab-profile")) $("tab-profile").textContent = t.tabs.profile;
+  if ($("create")) $("create").textContent = t.tabs.create;
+
+  // Головна
+  if ($("poll-question-text")) $("poll-question-text").textContent = t.main.noPoll;
+  if ($("poll-form")) {
+    const submitBtn = $("poll-form").querySelector("button[type='submit']");
+    if (submitBtn) submitBtn.textContent = t.main.pollButton;
+  }
+  if (document.querySelector(".info-card h2")) {
+    const titles = document.querySelectorAll(".info-card h2");
+    titles.forEach(h2 => {
+      if (h2.textContent.includes("Опитування") || h2.textContent.includes("Poll")) {
+        h2.textContent = t.main.pollTitle;
+      } else if (h2.textContent.includes("Голосування") || h2.textContent.includes("Voting")) {
+        h2.textContent = t.main.voteTitle;
+      } else if (h2.textContent.includes("Календар") || h2.textContent.includes("Calendar")) {
+        h2.textContent = t.main.calendarTitle;
+      } else if (h2.textContent.includes("Створити")) {
+        h2.textContent = t.create.title;
+      }
+    });
+  }
+  const label = document.querySelector("label[for='calendar-user-select']");
+  if (label) label.textContent = t.main.calendarLabel;
+
+  // Про систему
+  if ($("about-title")) $("about-title").textContent = t.about.title;
+  if ($("about-text")) $("about-text").textContent = t.about.text;
+  if ($("how-title")) $("how-title").textContent = t.about.howTitle;
+  if ($("how-list")) {
+    $("how-list").innerHTML = "";
+    t.about.howList.forEach(text => {
+      const li = document.createElement("li");
+      li.textContent = text;
+      $("how-list").appendChild(li);
+    });
+  }
+
+  // Профіль
+  if ($("profile-firstName")) $("profile-firstName").parentElement.childNodes[0].textContent = t.profile.name;
+  if ($("profile-lastName")) $("profile-lastName").parentElement.childNodes[0].textContent = t.profile.surname;
+  if ($("profile-dateOfBirth")) $("profile-dateOfBirth").parentElement.childNodes[0].textContent = t.profile.birth;
+  if ($("profile-aboutMe")) $("profile-aboutMe").parentElement.childNodes[0].textContent = t.profile.about;
+  if ($("profile-email")) $("profile-email").parentElement.childNodes[0].textContent = t.profile.email;
+  if ($("profile-role")) $("profile-role").parentElement.childNodes[0].textContent = t.profile.role;
+
+  const form = $("editProfileForm");
+  if (form) {
+    form.querySelector("label[for='edit-firstName']").textContent = t.profile.name;
+    form.querySelector("label[for='edit-lastName']").textContent = t.profile.surname;
+    form.querySelector("label[for='edit-aboutMe']").textContent = t.profile.about;
+    form.querySelector("label[for='edit-dateOfBirth']").textContent = t.profile.birth;
+    form.querySelector("label[for='edit-email']").textContent = t.profile.email;
+    form.querySelector("label[for='edit-password']").textContent = t.profile.newPass;
+    form.querySelector("label[for='confirm-password']").textContent = t.profile.confirmPass;
+    form.querySelector("button[type='submit']").textContent = t.profile.saveBtn;
+  }
+
+  const updateTitle = form?.parentElement?.querySelector("h2");
+  if (updateTitle) updateTitle.textContent = t.profile.update;
+
+  const infoTitle = document.querySelector("#profile-page .info-card h2");
+  if (infoTitle) infoTitle.textContent = t.profile.title;
+}
+
+function toggleLanguage() {
+  currentLang = currentLang === "ua" ? "en" : "ua";
+  localStorage.setItem("lang", currentLang);
+  applyLanguage(currentLang);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (!$("toggleLangBtn")) {
+    const btn = document.createElement("button");
+    btn.id = "toggleLangBtn";
+    btn.className = "lang-toggle-button";
+    btn.style.marginLeft = "10px";
+    btn.addEventListener("click", toggleLanguage);
+
+    const container = document.querySelector(".header-buttons");
+    if (container) container.appendChild(btn);
+  }
+
+  applyLanguage(currentLang);
+});
