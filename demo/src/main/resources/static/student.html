@@ -56,45 +56,46 @@
 
 <body>
     <header>
-        <h1 class="main-title">Головна сторінка</h1>
+        <h1 class="main-title">🙍‍♂️Сторінка учня🙍‍♂️</h1>
         <p class="subtitle">Вітаємо у системі голосування</p>
         <div class="header-buttons">
             <button id="logoutButton" class="auth-button">Вийти</button>
-            <button id="toggleThemeButton" class="theme-toggle-button">Змінити тему</button>
         </div>
     </header>
 
     <div class="nav-tabs">
-        <button id="tab-main" class="active" type="button">Головна</button>
-        <button id="tab-profile" type="button">Інформація про мене</button>
+        <button id="tab-main" class="active" type="button">🏠Головна інформація🏠</button>
+        <button id="tab-about-system" type="button">Про систему</button>
+        <button id="tab-profile" type="button">🛈Інформація про мене🛈</button>
+        <button id="create" type="button">Створити</button>
+        
     </div>
 
     <main>
         <!-- Головна вкладка -->
         <section id="main-page" class="page-section active">
-            <div class="info-card">
-                <h2>🛈Про систему</h2>
-                <p>Ця система дозволяє організовувати та проводити голосування серед учнів школи, переглядати події та
-                    оновлювати інформацію про себе.</p>
+           
+<div class="info-card">
+                <h2>Опитування</h2>
+                <p id="poll-question-text">Немає активного опитування.</p>
+                <form id="poll-form" style="display:none">
+                    <div id="poll-options-list"></div>
+                    <button type="submit">Відправити відповідь</button>
+                </form>
             </div>
 
-            <div class="info-card steps">
-                <h2>Як користуватись</h2>
-                <ol>
-                    <li>Авторизуйтесь у системі.</li>
-                    <li>Перейдіть до "Інформація про мене" для редагування профілю.</li>
-                    <li>Переглядайте події у календарі.</li>
-                    <li>Голосуйте в активних опитуваннях.</li>
-                </ol>
+            <div class="info-card">
+                <h2>Голосування</h2>
+                <div id="available-votes-container"></div>
             </div>
+            
+            
             <div class="info-card">
                 <h2>Календар подій</h2>
                 <div class="calendar-controls">
                     <div class="calendar-views">
-                        <button id="calendar-view-day">День</button>
                         <button id="calendar-view-week">Тиждень</button>
                         <button id="calendar-view-month" class="active">Місяць</button>
-                        <button id="calendar-view-year">Рік</button>
                     </div>
                     <div>
                         <label for="calendar-user-select">Переглянути календар користувача:</label>
@@ -129,22 +130,7 @@
                 </div>
             </div>
 
-            <div class="info-card">
-                <h2>Опитування</h2>
-                <p id="poll-question-text">Немає активного опитування.</p>
-                <form id="poll-form" style="display:none">
-                    <div id="poll-options-list"></div>
-                    <button type="submit">Відправити відповідь</button>
-                </form>
-            </div>
-
-            <div class="info-card">
-                <h2>Голосування</h2>
-                <div id="available-votes-container"></div>
-            </div>
-            <div class="info-card">
-                <div id="vote-create-container"></div>
-            </div>
+            
         </section>
 
         <!-- Профіль -->
@@ -187,6 +173,37 @@
                 </form>
             </div>
         </section>
+
+<!--                         Про систему                   -->
+        <section id="about_system_page" class="page-section">
+            <div class="info-card">
+                <h2>🛈Про систему</h2>
+                <p>Ця система дозволяє організовувати та проводити голосування серед учнів школи, переглядати події та
+                    оновлювати інформацію про себе.</p>
+            </div>
+
+            <div class="info-card steps">
+                <h2>⯑Як користуватись</h2>
+                <ol>
+                    <li>Авторизуйтесь у системі.</li>
+                    <li>Перейдіть до "Інформація про мене" для редагування профілю.</li>
+                    <li>Переглядайте події у календарі.</li>
+                    <li>Голосуйте в активних опитуваннях.</li>
+                </ol>
+            </div>
+        </section>
+
+
+        <!--         Створити голосування або петицію                   -->
+
+<section id="create_page" class="page-section">
+    <div class="info-card">
+        <div id="vote-create-container"></div>
+    </div>
+</section>
+
+
+
     </main>
 
     <script type="module" src="scripts/student.js"></script>

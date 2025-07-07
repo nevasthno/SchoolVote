@@ -20,10 +20,8 @@ let calendarUserId = null;
 
 function switchCalendarView(view) {
   currentView = view;
-  document.getElementById("calendar-view-day").classList.toggle("active", view === "day");
   document.getElementById("calendar-view-week").classList.toggle("active", view === "week");
   document.getElementById("calendar-view-month").classList.toggle("active", view === "month");
-  document.getElementById("calendar-view-year").classList.toggle("active", view === "year");
   updateCalendar();
 }
 
@@ -266,26 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("theme", document.body.classList.contains("dark-theme") ? "dark" : "light");
   });
 
-  const tabMain = document.getElementById("tab-main");
-  const tabProfile = document.getElementById("tab-profile");
-  const mainPage = document.getElementById("main-page");
-  const profilePage = document.getElementById("profile-page");
-  function showPage(page) {
-    mainPage.classList.remove("active");
-    profilePage.classList.remove("active");
-    tabMain.classList.remove("active");
-    tabProfile.classList.remove("active");
-    if (page === "main") {
-      mainPage.classList.add("active");
-      tabMain.classList.add("active");
-    } else {
-      profilePage.classList.add("active");
-      tabProfile.classList.add("active");
-      loadProfile();
-    }
-  }
-  tabMain.addEventListener("click", () => showPage("main"));
-  tabProfile.addEventListener("click", () => showPage("profile"));
+  
 
   ["calendar-view-day","calendar-view-week","calendar-view-month","calendar-view-year"]
     .forEach(id => document.getElementById(id)
@@ -304,3 +283,36 @@ document.addEventListener("DOMContentLoaded", () => {
   renderAvailableVotes('available-votes-container');
   renderVoteCreation('vote-create-container');
 });
+
+
+
+
+const tabButtons = document.querySelectorAll(".nav-tabs button");
+    const pageSections = document.querySelectorAll(".page-section");
+
+    tabButtons.forEach(button => {
+        button.addEventListener("click", () => {
+            // Зняти клас active з усіх кнопок і секцій
+            tabButtons.forEach(btn => btn.classList.remove("active"));
+            pageSections.forEach(section => section.classList.remove("active"));
+
+            // Додати active до натиснутої кнопки
+            button.classList.add("active");
+
+            // Показати відповідну секцію
+            switch (button.id) {
+                case "tab-main":
+                    document.getElementById("main-page").classList.add("active");
+                    break;
+                case "tab-profile":
+                    document.getElementById("profile-page").classList.add("active");
+                    break;
+                case "tab-about-system":
+                    document.getElementById("about_system_page").classList.add("active");
+                    break;
+                case "create":
+                    document.getElementById("create_page").classList.add("active");
+                    break;
+            }
+        });
+    });

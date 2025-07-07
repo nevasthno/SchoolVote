@@ -43,3 +43,7 @@ document.getElementById("loginButton").addEventListener("click", async () => {
     alert("Не вдалося увійти.");
   }
 });
+
+
+
+

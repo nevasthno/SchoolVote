@@ -1,16 +1,5 @@
 import { renderVoteCreation, renderAvailableVotes } from './vote.js';
-const themeToggleBtn = document.getElementById('toggleThemeButton');
-const isDark = localStorage.getItem('theme') === 'dark';
 
-if (isDark) {
-    document.body.classList.add('dark-theme');
-}
-
-themeToggleBtn.addEventListener('click', () => {
-    document.body.classList.toggle('dark-theme');
-    const isNowDark = document.body.classList.contains('dark-theme');
-    localStorage.setItem('theme', isNowDark ? 'dark' : 'light');
-});
 
 
 document.addEventListener("DOMContentLoaded", function () {

@@ -10,6 +10,15 @@ body {
   background-color: #f9f9f9;
   color: #333;
   padding: 20px;
+  margin: 0;
+  min-height: 100vh;
+  background: 
+    radial-gradient(white 1px, transparent 0) 0 0,
+    radial-gradient(white 1px, transparent 0) 25px 25px,
+    linear-gradient(to bottom, #66bb6a, #a5d6a7, #ffffff);
+  background-size: 50px 50px, 50px 50px, 100% 100%;
+  background-repeat: repeat;
+  background-attachment: fixed;
 }
 
 /* === HEADER === */
@@ -207,50 +216,7 @@ button[type="submit"]:hover {
   cursor: pointer;
 }
 
-/* === DARK THEME === */
-body.dark-theme {
-  background-color: #2b2b2b;
-  color: #f1f1f1;
-}
 
-body.dark-theme header {
-  background: #1b1b1b;
-  color: #fff;
-}
-
-body.dark-theme .info-card {
-  background-color: #3a3a3a;
-  color: #fff;
-  border-left-color: #81c784;
-}
-
-body.dark-theme input,
-body.dark-theme textarea,
-body.dark-theme select {
-  background-color: #555;
-  color: white;
-  border: 1px solid #888;
-}
-
-body.dark-theme .calendar-views button {
-  background-color: #4caf50;
-  color: black;
-}
-
-body.dark-theme .calendar-views button.active {
-  background-color: #2e7d32;
-  color: white;
-}
-
-body.dark-theme #calendar-table {
-  background-color: #444;
-  color: white;
-}
-
-body.dark-theme #calendar-table th {
-  background-color: #4caf50;
-  color: black;
-}
 body {
     text-align: center;
 }
@@ -264,3 +230,4 @@ header, .nav-tabs, main {
     width: 100%;
     max-width: 800px; /* або інша ширина, щоб не було надто широко */
 }
+
