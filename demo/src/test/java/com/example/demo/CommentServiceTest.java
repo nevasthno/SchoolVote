@@ -11,10 +11,14 @@ import com.example.demo.javaSrc.people.PeopleRepository;
 import com.example.demo.javaSrc.petitions.Petition;
 import com.example.demo.javaSrc.petitions.PetitionRepository;
 import com.example.demo.javaSrc.school.ClassRepository;
+import com.example.demo.javaSrc.school.School;
 import com.example.demo.javaSrc.school.SchoolClass;
+import com.example.demo.javaSrc.school.SchoolRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -38,33 +42,53 @@ public class CommentServiceTest {
     @Autowired
     private ClassRepository classRepository;
 
+    @Autowired
+    private SchoolRepository schoolRepository;
+
     private People testUser;
     private Petition testPetition;
 
-    @BeforeEach
-    void setup() {
-        commentRepository.deleteAll();
+     @BeforeEach
+    void setUp() {
+        classRepository.deleteAll();
         peopleRepository.deleteAll();
         petitionRepository.deleteAll();
-        classRepository.deleteAll();
-        SchoolClass schoolClass = new SchoolClass();
-        schoolClass.setName("1A");
-        schoolClass.setSchoolId(1L);
-        classRepository.save(schoolClass);
+        commentRepository.deleteAll();
+        schoolRepository.deleteAll();
 
-        testUser = new People();
-        testUser.setSchoolId(1L);
-        testUser.setClassId(schoolClass.getId());
-        testUser.setFirstName("John");
-        testUser.setLastName("Doe");
-        testUser.setEmail("john@example.com");
-        testUser.setPassword("password");
+        School school = new School();
+        school.setName("Test School");
+        school = schoolRepository.save(school);  
+
+        SchoolClass class1 = new SchoolClass();
+        class1.setName("1A");
+        class1.setSchoolId(school.getId());  
+        class1 = classRepository.save(class1);
+
+         testUser = new People();
+        testUser.setSchoolId(school.getId());
+        testUser.setClassId(class1.getId());
+        testUser.setFirstName("test");
+        testUser.setLastName("ggg");
+        testUser.setEmail("email@test.com");
+        testUser.setPassword("wvvrvfrere");
         testUser.setRole(People.Role.STUDENT);
-        peopleRepository.save(testUser);
+        testUser = peopleRepository.save(testUser);
 
-        testPetition = new Petition("Test", "Description", 1L, schoolClass.getId(),
-                testUser.getId(), new Date(), new Date(System.currentTimeMillis() + 100000), Petition.Status.OPEN);
-        petitionRepository.save(testPetition);
+        Date start = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+        Date end = Date.from(LocalDateTime.now().plusDays(10).atZone(ZoneId.systemDefault()).toInstant());
+
+        testPetition = new Petition(
+            "Test Petition",
+            "This is a test petition",
+            school.getId(),       
+            class1.getId(),
+            testUser.getId(),
+            start,
+            end,
+            Petition.Status.OPEN
+        );
+        testPetition = petitionRepository.save(testPetition);
     }
 
     @Test

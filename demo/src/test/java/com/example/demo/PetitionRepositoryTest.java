@@ -10,7 +10,9 @@ import com.example.demo.javaSrc.people.PeopleRepository;
 import com.example.demo.javaSrc.petitions.Petition;
 import com.example.demo.javaSrc.petitions.PetitionRepository;
 import com.example.demo.javaSrc.school.ClassRepository;
+import com.example.demo.javaSrc.school.School;
 import com.example.demo.javaSrc.school.SchoolClass;
+import com.example.demo.javaSrc.school.SchoolRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,23 +30,33 @@ public class PetitionRepositoryTest {
     @Autowired
     private ClassRepository classRepository;
 
+    @Autowired
+    private SchoolRepository schoolRepository;
+
     private People testUser;
     private SchoolClass schoolClass;
     private Petition testPetition;
+    private School school;
 
     @BeforeEach
     void setup() {
         classRepository.deleteAll();
         petitionRepository.deleteAll();
         peopleRepository.deleteAll();
+        schoolRepository.deleteAll();
+
+        school = new School();
+        school.setName("Test School");
+        school = schoolRepository.save(school);
+        
 
         schoolClass = new SchoolClass();
         schoolClass.setName("1A");
-        schoolClass.setSchoolId(1L);
+        schoolClass.setSchoolId(school.getId());
         classRepository.save(schoolClass);
 
         testUser = new People();
-        testUser.setSchoolId(1L);
+        testUser.setSchoolId(school.getId());
         testUser.setClassId(schoolClass.getId());
         testUser.setFirstName("Test");
         testUser.setLastName("User");
@@ -56,7 +68,7 @@ public class PetitionRepositoryTest {
         testPetition = new Petition(
                 "Test Title",
                 "Test Description",
-                1L,
+                school.getId(),
                 schoolClass.getId(),
                 testUser.getId(),
                 new Date(System.currentTimeMillis() - 100000),
@@ -74,13 +86,13 @@ public class PetitionRepositoryTest {
 
     @Test
     void testFindByClassIdAndSchoolId() {
-        List<Petition> found = petitionRepository.findByClassIdAndSchoolId(schoolClass.getId(), 1L);
+        List<Petition> found = petitionRepository.findByClassIdAndSchoolId(schoolClass.getId(), school.getId());
         assertThat(found).hasSize(1);
     }
 
     @Test
     void testFindBySchoolId() {
-        List<Petition> found = petitionRepository.findBySchoolId(1L);
+        List<Petition> found = petitionRepository.findBySchoolId(school.getId());
         assertThat(found).hasSize(1);
     }
 

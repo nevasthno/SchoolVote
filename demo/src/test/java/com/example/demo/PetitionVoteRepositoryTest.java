@@ -14,6 +14,8 @@ import com.example.demo.javaSrc.petitions.Petition;
 import com.example.demo.javaSrc.petitions.PetitionRepository;
 import com.example.demo.javaSrc.petitions.PetitionVote;
 import com.example.demo.javaSrc.petitions.PetitionVoteRepository;
+import com.example.demo.javaSrc.school.School;
+import com.example.demo.javaSrc.school.SchoolRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,12 +30,24 @@ public class PetitionVoteRepositoryTest {
     @Autowired
     private PeopleRepository peopleRepository;
 
+    @Autowired
+    private SchoolRepository schoolRepository;
+
     @Test
     void testExistsByPetitionIdAndStudentId() {
+        petitionVoteRepository.deleteAll();
+        petitionRepository.deleteAll();
+        peopleRepository.deleteAll();
+        schoolRepository.deleteAll();
+        
+        School school = new School();
+        school.setName("Test School");
+        school = schoolRepository.save(school);
+
         Petition petition = new Petition();
         petition.setTitle("Test");
         petition.setDescription("Test");
-        petition.setSchoolId(1L);
+        petition.setSchoolId(school.getId());
         petition.setStartDate(Date.from(LocalDateTime.now().minusDays(1).atZone(ZoneId.systemDefault()).toInstant()));
         petition.setEndDate(Date.from(LocalDateTime.now().plusDays(1).atZone(ZoneId.systemDefault()).toInstant()));
         petition.setStatus(Petition.Status.OPEN);
@@ -46,7 +60,7 @@ public class PetitionVoteRepositoryTest {
         student.setEmail("john.doe@example.com");
         student.setPassword("password");
         student.setRole(People.Role.STUDENT);
-        student.setSchoolId(1L);
+        student.setSchoolId(school.getId());
         student = peopleRepository.save(student);
 
         PetitionVote vote = new PetitionVote();

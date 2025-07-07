@@ -12,7 +12,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.example.demo.javaSrc.people.People;
 import com.example.demo.javaSrc.people.PeopleRepository;
 import com.example.demo.javaSrc.school.ClassRepository;
+import com.example.demo.javaSrc.school.School;
 import com.example.demo.javaSrc.school.SchoolClass;
+import com.example.demo.javaSrc.school.SchoolRepository;
 
 @SpringBootTest
 public class PeopleRepositoryTest {
@@ -20,24 +22,41 @@ public class PeopleRepositoryTest {
     private PeopleRepository peopleRepository;
     @Autowired
     private ClassRepository classRepository;
+    @Autowired
+    private SchoolRepository schoolRepository;
+
+    private People person;
+    private SchoolClass class1;
+    private School school;
+    private People person2;
+    private SchoolClass class2;
+    private School school2;
 
     @BeforeEach
     void setUp() {
         peopleRepository.deleteAll();
         classRepository.deleteAll();
+        schoolRepository.deleteAll();
 
-    }
-
-    @Test
-    void testFindByEmail() {
-        People person = new People();
-        String email = "testemail@gmail.com";
-        SchoolClass class1 = new SchoolClass();
+        school = new School();
+        school.setName("Test School");
+        school = schoolRepository.save(school);
+        class1 = new SchoolClass();
         class1.setName("1A");
-        class1.setSchoolId(1L);
+        class1.setSchoolId(school.getId());
         classRepository.save(class1);
 
-        person.setSchoolId(1L);
+        school2 = new School();
+        school2.setName("Test School 2");
+        school2 = schoolRepository.save(school2);
+
+        class2 = new SchoolClass();
+        class2.setName("2A");
+        class2.setSchoolId(school2.getId());
+        classRepository.save(class2); 
+
+        person = new People();
+        person.setSchoolId(school.getId());
         person.setClassId(class1.getId());
         person.setEmail("testemail@gmail.com");
         person.setPassword("password123");
@@ -46,8 +65,22 @@ public class PeopleRepositoryTest {
         person.setRole(People.Role.STUDENT);
         peopleRepository.save(person);
 
-        peopleRepository.save(person);
+        person2 = new People();
+        person2.setRole(People.Role.TEACHER);
+        person2.setSchoolId(school2.getId());
+        person2.setClassId(class2.getId());
+        person2.setEmail("testemail1@gmail.com");
+        person2.setPassword("password123");
+        person2.setFirstName("John");
+        person2.setLastName("Doe");
+        peopleRepository.save(person2);
 
+  
+    }
+
+    @Test
+    void testFindByEmail() {
+        String email = person.getEmail();
         Optional<People> found = peopleRepository.findByEmail(email);
 
         assertThat(found).isPresent();
@@ -57,31 +90,6 @@ public class PeopleRepositoryTest {
 
     @Test
     void testFindByRole() {
-        SchoolClass class1 = new SchoolClass();
-        class1.setName("1A");
-        class1.setSchoolId(1L);
-        classRepository.save(class1);
-
-        People person = new People();
-        person.setSchoolId(1L);
-        person.setClassId(class1.getId());
-        person.setEmail("testemail@gmail.com");
-        person.setPassword("password123");
-        person.setFirstName("John");
-        person.setLastName("Doe");
-        person.setRole(People.Role.STUDENT);
-        peopleRepository.save(person);
-
-        People person2 = new People();
-        person2.setRole(People.Role.TEACHER);
-        person2.setSchoolId(2L);
-        person2.setClassId(class1.getId());
-        person2.setEmail("testemail1@gmail.com");
-        person2.setPassword("password123");
-        person2.setFirstName("John");
-        person2.setLastName("Doe");
-        peopleRepository.save(person2);
-
 
         List<People> students = peopleRepository.findByRole(People.Role.STUDENT);
         List<People> teachers = peopleRepository.findByRole(People.Role.TEACHER);
@@ -92,38 +100,9 @@ public class PeopleRepositoryTest {
 
    @Test
     void testFindBySchoolId() {
-        SchoolClass class1 = new SchoolClass();
-        class1.setName("1A");
-        class1.setSchoolId(1L);
-        classRepository.save(class1);
 
-        SchoolClass class2 = new SchoolClass();
-        class2.setName("2A");
-        class2.setSchoolId(2L);
-        classRepository.save(class2);
-
-        People person = new People();
-        person.setSchoolId(1L);
-        person.setClassId(class1.getId());
-        person.setEmail("testemail@gmail.com");
-        person.setPassword("password123");
-        person.setFirstName("John");
-        person.setLastName("Doe");
-        person.setRole(People.Role.STUDENT);
-        peopleRepository.save(person);
-
-        People person2 = new People();
-        person2.setRole(People.Role.TEACHER);
-        person2.setSchoolId(2L);
-        person2.setClassId(class2.getId());
-        person2.setEmail("testemail1@gmail.com");
-        person2.setPassword("password123");
-        person2.setFirstName("John");
-        person2.setLastName("Doe");
-        peopleRepository.save(person2);
-
-        List<People> school1People = peopleRepository.findBySchoolId(1L);
-        List<People> school2People = peopleRepository.findBySchoolId(2L);
+        List<People> school1People = peopleRepository.findBySchoolId(school.getId());
+        List<People> school2People = peopleRepository.findBySchoolId(school2.getId());
 
         assertThat(school1People).hasSize(1);
         assertThat(school2People).hasSize(1);
@@ -131,38 +110,8 @@ public class PeopleRepositoryTest {
 
     @Test
     void testFindBySchoolIdAndClassId() {
-        SchoolClass class1 = new SchoolClass();
-        class1.setName("1A");
-        class1.setSchoolId(1L);
-        classRepository.save(class1);
-
-        SchoolClass class2 = new SchoolClass();
-        class2.setName("2A");
-        class2.setSchoolId(2L);
-        classRepository.save(class2);
-
-        People person = new People();
-        person.setSchoolId(1L);
-        person.setClassId(class1.getId());
-        person.setEmail("testemail@gmail.com");
-        person.setPassword("password123");
-        person.setFirstName("John");
-        person.setLastName("Doe");
-        person.setRole(People.Role.STUDENT);
-        peopleRepository.save(person);
-
-        People person2 = new People();
-        person2.setRole(People.Role.TEACHER);
-        person2.setSchoolId(2L);
-        person2.setClassId(class2.getId());
-        person2.setEmail("testemail1@gmail.com");
-        person2.setPassword("password123");
-        person2.setFirstName("John");
-        person2.setLastName("Doe");
-        peopleRepository.save(person2);
-
-        List<People> class1People = peopleRepository.findBySchoolIdAndClassId(1L, class1.getId());
-        List<People> class2People = peopleRepository.findBySchoolIdAndClassId(2L, class2.getId());
+         List<People> class1People = peopleRepository.findBySchoolIdAndClassId(school.getId(), class1.getId());
+        List<People> class2People = peopleRepository.findBySchoolIdAndClassId(school2.getId(), class2.getId());
 
         assertThat(class1People).hasSize(1);
         assertThat(class2People).hasSize(1);

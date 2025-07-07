@@ -14,20 +14,29 @@ public class ClassRepositoryTest {
     @Autowired
     private ClassRepository classRepository;
 
+    @Autowired
+    private SchoolRepository schoolRepository;
+
     @Test
     void testFindBySchoolId(){
+        schoolRepository.deleteAll();
         classRepository.deleteAll();
+
+        School school = new School();
+        school.setName("Test School");
+        school = schoolRepository.save(school);  
+
 
         SchoolClass schoolClass = new SchoolClass();
         schoolClass.setName("Math Class");
-        schoolClass.setSchoolId(1L);
+        schoolClass.setSchoolId(school.getId());  
         classRepository.save(schoolClass);
         
-        List<SchoolClass> classes = classRepository.findBySchoolId(1L);
+        List<SchoolClass> classes = classRepository.findBySchoolId(school.getId());
 
         assertThat(classes).isNotEmpty();
         assertThat(classes.get(0).getName()).isEqualTo("Math Class");
-        assertThat(classes.get(0).getSchoolId()).isEqualTo(1L);
+        assertThat(classes.get(0).getSchoolId()).isEqualTo(school.getId());
         
     }
 }
