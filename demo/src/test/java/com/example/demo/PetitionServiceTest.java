@@ -12,6 +12,7 @@ import java.time.ZoneId;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.example.demo.javaSrc.people.People;
@@ -49,10 +50,12 @@ public class PetitionServiceTest {
         petition.setTitle("Test Petition");
         petition.setDescription("Test Description");
         petition.setCreatedBy(1L);
-        petition.setStartDate(Date.from(LocalDateTime.now().minusDays(1).atZone(ZoneId.systemDefault()).toInstant()));
-        petition.setEndDate(Date.from(LocalDateTime.now().plusDays(1).atZone(ZoneId.systemDefault()).toInstant()));
+        petition.setStartDate(Date.from(LocalDateTime.now().minusDays(1)
+            .atZone(ZoneId.systemDefault()).toInstant()));
+        petition.setEndDate(Date.from(LocalDateTime.now().plusDays(1)
+            .atZone(ZoneId.systemDefault()).toInstant()));
         petition.setStatus(Petition.Status.OPEN);
-        petition.setCurrentVoteCount(0);
+        petition.setCurrentPositiveVoteCount(0);
         petition.setDirectorsDecision(Petition.DirectorsDecision.NOT_ENOUGH_VOTING);
 
         student = new People();
@@ -85,8 +88,10 @@ public class PetitionServiceTest {
         when(petitionRepository.findByStatus(Petition.Status.OPEN)).thenReturn(list);
         when(petitionRepository.findByDirectorsDecision(Petition.DirectorsDecision.NOT_ENOUGH_VOTING)).thenReturn(list);
 
-        Date start = Date.from(LocalDateTime.now().minusDays(2).atZone(ZoneId.systemDefault()).toInstant());
-        Date end = Date.from(LocalDateTime.now().plusDays(2).atZone(ZoneId.systemDefault()).toInstant());
+        Date start = Date.from(LocalDateTime.now().minusDays(2)
+            .atZone(ZoneId.systemDefault()).toInstant());
+        Date end = Date.from(LocalDateTime.now().plusDays(2)
+            .atZone(ZoneId.systemDefault()).toInstant());
         when(petitionRepository.findByStartDateBetween(start, end)).thenReturn(list);
 
         assertThat(petitionService.getPetitionByClassAndSchool(1L, 1L)).isEqualTo(list);
@@ -110,7 +115,7 @@ public class PetitionServiceTest {
         updated.setStartDate(petition.getStartDate());
         updated.setEndDate(petition.getEndDate());
         updated.setStatus(Petition.Status.CLOSED);
-        updated.setCurrentVoteCount(5);
+        updated.setCurrentPositiveVoteCount(5);
         updated.setDirectorsDecision(Petition.DirectorsDecision.APPROVED);
 
         when(petitionRepository.findById(1L)).thenReturn(Optional.of(petition));
@@ -136,13 +141,18 @@ public class PetitionServiceTest {
     void testVoteSuccess() throws Exception {
         when(petitionRepository.findById(1L)).thenReturn(Optional.of(petition));
         when(petitionVoteRepository.existsByPetitionIdAndStudentId(1L, 100L)).thenReturn(false);
-        when(peopleRepository.findByRoleAndSchoolIdAndClassId("STUDENT", 1L, 1L)).thenReturn(List.of(student));
-        when(petitionRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+        // Здесь заменили строку на enum
+        when(peopleRepository.findByRoleAndSchoolIdAndClassId(
+                People.Role.STUDENT, 1L, 1L))
+            .thenReturn(List.of(student));
+
         when(petitionVoteRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+        when(petitionRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
         petitionService.vote(1L, 100L, PetitionVote.VoteVariant.YES);
 
-        assertThat(petition.getCurrentVoteCount()).isEqualTo(1);
+        assertThat(petition.getCurrentPositiveVoteCount()).isEqualTo(1);
         assertThat(petition.getDirectorsDecision()).isEqualTo(Petition.DirectorsDecision.PENDING);
 
         verify(petitionVoteRepository, times(1)).save(any());
@@ -161,7 +171,8 @@ public class PetitionServiceTest {
 
     @Test
     void testVotePetitionEndedThrows() {
-        petition.setEndDate(Date.from(LocalDateTime.now().minusDays(1).atZone(ZoneId.systemDefault()).toInstant()));
+        petition.setEndDate(Date.from(LocalDateTime.now().minusDays(1)
+            .atZone(ZoneId.systemDefault()).toInstant()));
         when(petitionRepository.findById(1L)).thenReturn(Optional.of(petition));
 
         assertThatThrownBy(() -> petitionService.vote(1L, 100L, PetitionVote.VoteVariant.YES))

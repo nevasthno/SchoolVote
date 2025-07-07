@@ -1,5 +1,6 @@
 import { renderAvailableVotes, renderVoteCreation } from './vote.js';
 import { fetchWithAuth } from './api.js';
+import { initializePetitions } from './petition.js';
 
 function logout() {
   window.location.href = "login.html";
@@ -171,7 +172,10 @@ async function loadProfile() {
       const el = document.getElementById(id);
       if (el) el.value = value || "";
     });
-  } catch {}
+    return user;
+  } catch {
+    return null;
+  }
 }
 
 async function updateProfile(e) {
@@ -189,77 +193,67 @@ async function updateProfile(e) {
       body: JSON.stringify(data)
     });
     alert("Профіль оновлено");
-    loadProfile();
+    await loadProfile();
   } catch {
     alert("Помилка оновлення");
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  // --- кнопки та тема ---
   document.getElementById("logoutButton")?.addEventListener("click", logout);
   document.getElementById("toggleThemeButton")?.addEventListener("click", () => {
     document.body.classList.toggle("dark-theme");
     localStorage.setItem("theme", document.body.classList.contains("dark-theme") ? "dark" : "light");
   });
 
-  
-
+  // --- календар ---
   ["calendar-view-day","calendar-view-week","calendar-view-month","calendar-view-year"]
     .forEach(id => document.getElementById(id)
-    ?.addEventListener("click", () => switchCalendarView(id.split("-")[2])));
+      ?.addEventListener("click", () => switchCalendarView(id.split("-")[2]))
+    );
   document.getElementById("prev-period")?.addEventListener("click", () => changePeriod(-1));
   document.getElementById("next-period")?.addEventListener("click", () => changePeriod(1));
   document.getElementById("calendar-user-select")
     ?.addEventListener("change", e => { calendarUserId = e.target.value; updateCalendar(); });
-
   initCalendar();
   loadCalendarUserSelector();
-  loadProfile();
+
+  // --- профіль ---
+  const me = await loadProfile();
   document.getElementById("editProfileForm")
     ?.addEventListener("submit", updateProfile);
 
+  // --- голосування ---
   if (document.getElementById('available-votes-container')) {
     renderAvailableVotes('available-votes-container');
   }
   if (document.getElementById('vote-create-container')) {
     renderVoteCreation('vote-create-container');
   }
-});
 
+  // --- петиції ---
+  if (me) {
+    initializePetitions(me);
+  }
 
-
-
-const tabButtons = document.querySelectorAll(".nav-tabs button");
-    const pageSections = document.querySelectorAll(".page-section");
-
-    tabButtons.forEach(button => {
-        button.addEventListener("click", () => {
-            // Зняти клас active з усіх кнопок і секцій
-            tabButtons.forEach(btn => btn.classList.remove("active"));
-            pageSections.forEach(section => section.classList.remove("active"));
-
-            // Додати active до натиснутої кнопки
-            button.classList.add("active");
-
-            // Показати відповідну секцію
-            switch (button.id) {
-                case "tab-main":
-                    document.getElementById("main-page").classList.add("active");
-                    break;
-                case "tab-profile":
-                    document.getElementById("profile-page").classList.add("active");
-                    break;
-                case "tab-about-system":
-                    document.getElementById("about_system_page").classList.add("active");
-                    break;
-                case "create":
-                    document.getElementById("create_page").classList.add("active");
-                    break;
-            }
-        });
+  // --- таби ---
+  const tabButtons = document.querySelectorAll(".nav-tabs button");
+  const pageSections = document.querySelectorAll(".page-section");
+  tabButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      tabButtons.forEach(btn => btn.classList.remove("active"));
+      pageSections.forEach(sec => sec.classList.remove("active"));
+      button.classList.add("active");
+      switch (button.id) {
+        case "tab-main": document.getElementById("main-page").classList.add("active"); break;
+        case "tab-profile": document.getElementById("profile-page").classList.add("active"); break;
+        case "tab-about-system": document.getElementById("about_system_page").classList.add("active"); break;
+        case "create": document.getElementById("create_page").classList.add("active"); break;
+      }
     });
-
-
+  });
+});
 
 
 
@@ -309,7 +303,7 @@ const translations = {
       saveBtn: "Оновити профіль"
     },
     create: {
-      title: "Створити голосування або петицію"
+      title: "Створити голосування"
     }
   },
   en: {
@@ -353,7 +347,7 @@ const translations = {
       saveBtn: "Update Profile"
     },
     create: {
-      title: "Create Poll or Petition"
+      title: "Create Vote"
     }
   }
 };
