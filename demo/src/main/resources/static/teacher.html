@@ -36,6 +36,15 @@
         .page-section.active {
             display: block;
         }
+        .lang-toggle-button {
+  background: #50ad55;
+  color: #fff;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
     </style>
 </head>
 
@@ -43,6 +52,8 @@
     <header>
         <h1>Панель вчителя</h1>
         <button id="logoutButton" class="auth-button">Вийти</button>
+<!-- Кнопка мови буде вставлена скриптом -->
+
 
     </header>
 
@@ -79,6 +90,10 @@
                     <button type="button" id="cancel-edit">Скасувати</button>
                 </form>
             </section>
+            <div class="info-card">
+                    <h2>Голосування</h2>
+                    <div id="available-votes-container"></div>
+                </div>
         </section>
 
         <!-- Creation/Stats Page -->
@@ -113,10 +128,7 @@
                 <button id="create-user-button">Створити користувача</button>
             </section>
             <section>
-                <div class="info-card">
-                    <h2>Голосування</h2>
-                    <div id="available-votes-container"></div>
-                </div>
+                
                 <div id="vote-create-container"></div>
             </section>
         </section>
