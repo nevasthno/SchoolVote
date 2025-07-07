@@ -39,7 +39,6 @@ public class ApiController {
     private final PasswordEncoder passwordEncoder;
     private final SchoolService schoolService;
     private final ClassService classService;
-    private final VoteRepository voteRepository;
     private final VoteService voteService;
     private final PetitionService petitionService;
     private final PetitionRepository petitionRepository;
@@ -51,7 +50,6 @@ public class ApiController {
             PasswordEncoder passwordEncoder,
             SchoolService schoolService,
             ClassService classService,
-            VoteRepository voteRepository,
             VoteService voteService,
             PetitionService petitionService,
             PetitionRepository petitionRepository) {
@@ -60,7 +58,6 @@ public class ApiController {
         this.passwordEncoder = passwordEncoder;
         this.schoolService = schoolService;
         this.classService = classService;
-        this.voteRepository = voteRepository;
         this.voteService = voteService;
         this.petitionService = petitionService;
         this.petitionRepository = petitionRepository;
@@ -233,18 +230,6 @@ public class ApiController {
         }
     }
 
-    @GetMapping("/votes")
-    public List<Vote> getVotes(@RequestParam(required = false) Long schoolId,
-            @RequestParam(required = false) Long classId) {
-        if (classId != null && schoolId != null) {
-            return voteService.getVotingsByClassAndSchool(classId, schoolId);
-        } else if (schoolId != null) {
-            return voteService.getVotingsBySchool(schoolId);
-        } else {
-            return voteService.getAllVotings();
-        }
-    }
-
     @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/createPetition")
     public ResponseEntity<Petition> createPetition(@RequestBody Petition petitionRB, Authentication auth) {
@@ -332,7 +317,17 @@ public class ApiController {
             return ResponseEntity.status(500).body(null);
         }
     }
-
+     @GetMapping("/votes")
+    public List<Vote> getVotes(@RequestParam(required = false) Long schoolId,
+            @RequestParam(required = false) Long classId) {
+        if (classId != null && schoolId != null) {
+            return voteService.getVotingsByClassAndSchool(classId, schoolId);
+        } else if (schoolId != null) {
+            return voteService.getVotingsBySchool(schoolId);
+        } else {
+            return voteService.getAllVotings();
+        }
+    }
     @GetMapping("voting/{id}")
     public ResponseEntity<Vote> getVotingById(@PathVariable Long id) {
         Vote vote = voteService.getVotingById(id);
@@ -414,4 +409,5 @@ public class ApiController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    
 }
