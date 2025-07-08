@@ -529,3 +529,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   applyLanguage(currentLang);
 });
+
+
+
+const toggleButton = document.getElementById('themeToggle');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  // Застосовуємо збережену або системну тему
+  if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && prefersDark)) {
+    document.body.classList.add('dark-theme');
+    toggleButton.textContent = '☀️';
+  }
+
+  toggleButton.addEventListener('click', () => {
+    document.body.classList.toggle('dark-theme');
+    const isDark = document.body.classList.contains('dark-theme');
+    toggleButton.textContent = isDark ? '☀️' : '🌙';
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  });

@@ -328,3 +328,50 @@ header, .nav-tabs, main {
   background: #45a049;
 }
 
+
+
+
+/* === ТЕМНА ТЕМА === */
+body.dark-theme {
+  background: linear-gradient(to bottom, #1c1c1c, #2e2e2e, #3d3d3d);
+  color: #eee;
+}
+
+body.dark-theme .info-card,
+body.dark-theme .vote-section,
+body.dark-theme header {
+  background-color: #2a2a2a;
+  color: #f1f1f1;
+  border-left-color: #81c784;
+}
+
+body.dark-theme .nav-tabs button {
+  background-color: #444;
+  color: #eee;
+}
+
+body.dark-theme .nav-tabs button.active {
+  background-color: #66bb6a;
+  color: #fff;
+}
+
+body.dark-theme input,
+body.dark-theme textarea,
+body.dark-theme select {
+  background-color: #444;
+  color: #fff;
+  border: 1px solid #666;
+}
+
+body.dark-theme button,
+body.dark-theme .auth-button,
+body.dark-theme .theme-toggle-button {
+  background-color: #388e3c;
+  color: white;
+}
+
+body.dark-theme button:hover,
+body.dark-theme .auth-button:hover,
+body.dark-theme .theme-toggle-button:hover {
+  background-color: #2e7d32;
+}

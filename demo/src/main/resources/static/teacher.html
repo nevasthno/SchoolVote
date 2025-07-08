@@ -44,6 +44,50 @@
   border-radius: 4px;
   cursor: pointer;
 }
+body.dark-theme {
+  background: linear-gradient(to bottom, #1c1c1c, #2a2a2a, #3a3a3a);
+  color: #eee;
+}
+
+body.dark-theme header,
+body.dark-theme .info-card,
+body.dark-theme section,
+body.dark-theme .nav-tabs button,
+body.dark-theme input,
+body.dark-theme textarea,
+body.dark-theme select {
+  background-color: #2a2a2a;
+  color: #f1f1f1;
+}
+
+body.dark-theme .nav-tabs button {
+  background-color: #444;
+  color: #ccc;
+}
+
+body.dark-theme .nav-tabs button.active {
+  background-color: #66bb6a;
+  color: #fff;
+}
+
+body.dark-theme input,
+body.dark-theme textarea,
+body.dark-theme select {
+  border: 1px solid #666;
+}
+
+body.dark-theme button,
+body.dark-theme .auth-button,
+body.dark-theme .theme-toggle-button {
+  background-color: #388e3c;
+  color: white;
+}
+
+body.dark-theme button:hover,
+body.dark-theme .auth-button:hover,
+body.dark-theme .theme-toggle-button:hover {
+  background-color: #2e7d32;
+}
 
     </style>
 </head>
@@ -52,6 +96,7 @@
     <header>
         <h1>Панель вчителя</h1>
         <button id="logoutButton" class="auth-button">Вийти</button>
+        <button id="themeToggle" class="theme-toggle-button">🌙</button>
 <!-- Кнопка мови буде вставлена скриптом -->
 
 
@@ -180,6 +225,7 @@
 
     <script type="module" src="scripts/teacher.js"></script>
     <script type="module" src="scripts/vote.js"></script>
+    
 </body>
 
 </html>

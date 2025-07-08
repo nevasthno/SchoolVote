@@ -263,195 +263,136 @@ const tabButtons = document.querySelectorAll(".nav-tabs button");
 
 
 
-// ===== Переклади =====
-const $ = id => document.getElementById(id);
-
-// Словники перекладу
 const translations = {
-  ua: {
-    langButton: "🌐 English",
-    tabs: {
-      main: "🏠Головна інформація🏠",
-      about: "Про систему",
-      profile: "🛈Інформація про мене🛈",
-      create: "Створити"
-    },
-    main: {
-      pollTitle: "Опитування",
-      noPoll: "Немає активного опитування.",
-      pollButton: "Відправити відповідь",
-      voteTitle: "Голосування",
-      calendarTitle: "Календар подій",
-      calendarLabel: "Переглянути календар користувача:"
-    },
-    about: {
-      title: "🛈Про систему",
-      text: "Ця система дозволяє організовувати та проводити голосування серед учнів школи, переглядати події та оновлювати інформацію про себе.",
-      howTitle: "⯑Як користуватись",
-      howList: [
-        "Авторизуйтесь у системі.",
-        "Перейдіть до \"Інформація про мене\" для редагування профілю.",
-        "Переглядайте події у календарі.",
-        "Голосуйте в активних опитуваннях."
-      ]
-    },
-    profile: {
-      title: "Інформація про учня",
-      update: "Оновити інформацію",
-      name: "Ім'я:",
-      surname: "Прізвище:",
-      birth: "Дата народження:",
-      about: "Про мене:",
-      email: "Email:",
-      role: "Роль:",
-      newPass: "Новий пароль:",
-      confirmPass: "Підтвердження пароля:",
-      saveBtn: "Оновити профіль"
-    },
-    create: {
-      title: "Створити голосування або петицію"
-    }
+  uk: {
+    '🙍‍♂️ Student Page 🙍‍♂️': '🙍‍♂️ Сторінка учня 🙍‍♂️',
+    'Welcome to the voting system': 'Вітаємо у системі голосування',
+    '🏠 Main Information 🏠': '🏠 Головна інформація 🏠',
+    '⯑ About the system ⯑': '⯑ Про систему ⯑',
+    '🛈 My Information 🛈': '🛈 Інформація про мене 🛈',
+    '⊕ Create ⊕': '⊕ Створити ⊕',
+    'Event Calendar': 'Календар подій',
+    "View user's calendar:": 'Переглянути календар користувача:',
+    'Me': 'Я',
+    'Voting': 'Голосування',
+    'Student Info': 'Інформація про учня',
+    'First name:': "Ім'я:",
+    'Last name:': 'Прізвище:',
+    'Date of Birth:': 'Дата народження:',
+    'About me:': 'Про мене:',
+    'Email:': 'Email:',
+    'Role:': 'Роль:',
+    'Update Info': 'Оновити інформацію',
+    'New password:': 'Новий пароль:',
+    'Confirm password:': 'Підтвердження пароля:',
+    '🛈 About the system': '🛈 Про систему',
+    'This system allows organizing and conducting student voting, viewing events, and updating your profile.': 'Ця система дозволяє організовувати та проводити голосування серед учнів школи, переглядати події та оновлювати інформацію про себе.',
+    '⯑ How to use': '⯑ Як користуватись',
+    'Login to the system.': 'Авторизуйтесь у системі.',
+    'Go to "My Information" to edit your profile.': 'Перейдіть до "Інформація про мене" для редагування профілю.',
+    'View events in the calendar.': 'Переглядайте події у календарі.',
+    'Vote in active polls.': 'Голосуйте в активних опитуваннях.',
+    'Logout': 'Вийти',
+    '🌐 УКР': '🌐 EN',
   },
   en: {
-    langButton: "🌐 Українська",
-    tabs: {
-      main: "🏠Main Info🏠",
-      about: "About the System",
-      profile: "🛈About Me🛈",
-      create: "Create"
-    },
-    main: {
-      pollTitle: "Poll",
-      noPoll: "No active poll.",
-      pollButton: "Submit Answer",
-      voteTitle: "Voting",
-      calendarTitle: "Event Calendar",
-      calendarLabel: "View calendar of user:"
-    },
-    about: {
-      title: "🛈About the System",
-      text: "This system allows organizing and conducting voting among school students, viewing events, and updating personal information.",
-      howTitle: "⯑How to Use",
-      howList: [
-        "Log in to the system.",
-        "Go to \"About Me\" to edit your profile.",
-        "View events in the calendar.",
-        "Vote in active polls."
-      ]
-    },
-    profile: {
-      title: "Student Information",
-      update: "Update Information",
-      name: "Name:",
-      surname: "Surname:",
-      birth: "Date of Birth:",
-      about: "About Me:",
-      email: "Email:",
-      role: "Role:",
-      newPass: "New Password:",
-      confirmPass: "Confirm Password:",
-      saveBtn: "Update Profile"
-    },
-    create: {
-      title: "Create Poll or Petition"
-    }
-  }
+    '🙍‍♂️ Сторінка учня 🙍‍♂️': '🙍‍♂️ Student Page 🙍‍♂️',
+    'Вітаємо у системі голосування': 'Welcome to the voting system',
+    '🏠 Головна інформація 🏠': '🏠 Main Information 🏠',
+    '⯑ Про систему ⯑': '⯑ About the system ⯑',
+    '🛈 Інформація про мене 🛈': '🛈 My Information 🛈',
+    '⊕ Створити ⊕': '⊕ Create ⊕',
+    'Календар подій': 'Event Calendar',
+    'Переглянути календар користувача:': "View user's calendar:",
+    'Я': 'Me',
+    'Голосування': 'Voting',
+    'Інформація про учня': 'Student Info',
+    "Ім'я:": 'First name:',
+    'Прізвище:': 'Last name:',
+    'Дата народження:': 'Date of Birth:',
+    'Про мене:': 'About me:',
+    'Email:': 'Email:',
+    'Роль:': 'Role:',
+    'Оновити інформацію': 'Update Info',
+    'Новий пароль:': 'New password:',
+    'Підтвердження пароля:': 'Confirm password:',
+    '🛈 Про систему': '🛈 About the system',
+    'Ця система дозволяє організовувати та проводити голосування серед учнів школи, переглядати події та оновлювати інформацію про себе.': 'This system allows organizing and conducting student voting, viewing events, and updating your profile.',
+    '⯑ Як користуватись': '⯑ How to use',
+    'Авторизуйтесь у системі.': 'Login to the system.',
+    'Перейдіть до "Інформація про мене" для редагування профілю.': 'Go to "My Information" to edit your profile.',
+    'Переглядайте події у календарі.': 'View events in the calendar.',
+    'Голосуйте в активних опитуваннях.': 'Vote in active polls.',
+    'Вийти': 'Logout',
+    '🌐 EN': '🌐 УКР',
+  },
 };
 
-let currentLang = localStorage.getItem("lang") || "ua";
+let currentLang = 'uk';
 
-function applyLanguage(lang) {
-  const t = translations[lang];
+function translateText(text) {
+  const dict = translations[currentLang];
+  return dict[text] || text;
+}
 
-  // Кнопка мови
-  if ($("toggleLangBtn")) $("toggleLangBtn").textContent = t.langButton;
+function translatePage() {
+  const dict = translations[currentLang];
 
-  // Вкладки
-  if ($("tab-main")) $("tab-main").textContent = t.tabs.main;
-  if ($("tab-about-system")) $("tab-about-system").textContent = t.tabs.about;
-  if ($("tab-profile")) $("tab-profile").textContent = t.tabs.profile;
-  if ($("create")) $("create").textContent = t.tabs.create;
+  document.querySelectorAll('*:not(script):not(style)').forEach(el => {
+    // Переводимо текст
+    if (el.childNodes.length === 1 && el.childNodes[0].nodeType === 3) {
+      const originalText = el.innerText.trim();
+      if (dict[originalText]) el.innerText = dict[originalText];
+    }
 
-  // Головна
-  if ($("poll-question-text")) $("poll-question-text").textContent = t.main.noPoll;
-  if ($("poll-form")) {
-    const submitBtn = $("poll-form").querySelector("button[type='submit']");
-    if (submitBtn) submitBtn.textContent = t.main.pollButton;
-  }
-  if (document.querySelector(".info-card h2")) {
-    const titles = document.querySelectorAll(".info-card h2");
-    titles.forEach(h2 => {
-      if (h2.textContent.includes("Опитування") || h2.textContent.includes("Poll")) {
-        h2.textContent = t.main.pollTitle;
-      } else if (h2.textContent.includes("Голосування") || h2.textContent.includes("Voting")) {
-        h2.textContent = t.main.voteTitle;
-      } else if (h2.textContent.includes("Календар") || h2.textContent.includes("Calendar")) {
-        h2.textContent = t.main.calendarTitle;
-      } else if (h2.textContent.includes("Створити")) {
-        h2.textContent = t.create.title;
+    // Переводимо placeholder, title, value, alt
+    ['placeholder', 'title', 'value', 'alt'].forEach(attr => {
+      const val = el.getAttribute(attr);
+      if (val && dict[val]) {
+        el.setAttribute(attr, dict[val]);
       }
     });
+  });
+
+  // Оновити текст кнопки мови
+  const btn = document.getElementById('langToggleButton');
+  if (btn) {
+    btn.textContent = currentLang === 'uk' ? '🌐 EN' : '🌐 УКР';
   }
-  const label = document.querySelector("label[for='calendar-user-select']");
-  if (label) label.textContent = t.main.calendarLabel;
-
-  // Про систему
-  if ($("about-title")) $("about-title").textContent = t.about.title;
-  if ($("about-text")) $("about-text").textContent = t.about.text;
-  if ($("how-title")) $("how-title").textContent = t.about.howTitle;
-  if ($("how-list")) {
-    $("how-list").innerHTML = "";
-    t.about.howList.forEach(text => {
-      const li = document.createElement("li");
-      li.textContent = text;
-      $("how-list").appendChild(li);
-    });
-  }
-
-  // Профіль
-  if ($("profile-firstName")) $("profile-firstName").parentElement.childNodes[0].textContent = t.profile.name;
-  if ($("profile-lastName")) $("profile-lastName").parentElement.childNodes[0].textContent = t.profile.surname;
-  if ($("profile-dateOfBirth")) $("profile-dateOfBirth").parentElement.childNodes[0].textContent = t.profile.birth;
-  if ($("profile-aboutMe")) $("profile-aboutMe").parentElement.childNodes[0].textContent = t.profile.about;
-  if ($("profile-email")) $("profile-email").parentElement.childNodes[0].textContent = t.profile.email;
-  if ($("profile-role")) $("profile-role").parentElement.childNodes[0].textContent = t.profile.role;
-
-  const form = $("editProfileForm");
-  if (form) {
-    form.querySelector("label[for='edit-firstName']").textContent = t.profile.name;
-    form.querySelector("label[for='edit-lastName']").textContent = t.profile.surname;
-    form.querySelector("label[for='edit-aboutMe']").textContent = t.profile.about;
-    form.querySelector("label[for='edit-dateOfBirth']").textContent = t.profile.birth;
-    form.querySelector("label[for='edit-email']").textContent = t.profile.email;
-    form.querySelector("label[for='edit-password']").textContent = t.profile.newPass;
-    form.querySelector("label[for='confirm-password']").textContent = t.profile.confirmPass;
-    form.querySelector("button[type='submit']").textContent = t.profile.saveBtn;
-  }
-
-  const updateTitle = form?.parentElement?.querySelector("h2");
-  if (updateTitle) updateTitle.textContent = t.profile.update;
-
-  const infoTitle = document.querySelector("#profile-page .info-card h2");
-  if (infoTitle) infoTitle.textContent = t.profile.title;
 }
 
 function toggleLanguage() {
-  currentLang = currentLang === "ua" ? "en" : "ua";
-  localStorage.setItem("lang", currentLang);
-  applyLanguage(currentLang);
+  currentLang = currentLang === 'uk' ? 'en' : 'uk';
+  translatePage();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  if (!$("toggleLangBtn")) {
-    const btn = document.createElement("button");
-    btn.id = "toggleLangBtn";
-    btn.className = "lang-toggle-button";
-    btn.style.marginLeft = "10px";
-    btn.addEventListener("click", toggleLanguage);
+// Додати кнопку
+window.addEventListener('DOMContentLoaded', () => {
+  const btn = document.createElement('button');
+  btn.id = 'langToggleButton';
+  btn.className = 'lang-toggle-button';
+  btn.textContent = '🌐 EN';
+  btn.onclick = toggleLanguage;
 
-    const container = document.querySelector(".header-buttons");
-    if (container) container.appendChild(btn);
+  const container = document.querySelector('.header-buttons') || document.body;
+  container.appendChild(btn);
+});
+
+
+
+
+
+const toggleButton = document.getElementById('themeToggle');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && prefersDark)) {
+    document.body.classList.add('dark-theme');
+    toggleButton.textContent = '☀️';
   }
 
-  applyLanguage(currentLang);
-});
+  toggleButton.addEventListener('click', () => {
+    document.body.classList.toggle('dark-theme');
+    const isDark = document.body.classList.contains('dark-theme');
+    toggleButton.textContent = isDark ? '☀️' : '🌙';
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  });

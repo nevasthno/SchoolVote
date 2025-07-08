@@ -86,3 +86,21 @@ body::before {
 .login-container button:hover {
   background: #1b5e20;
 }
+
+
+.login-container button:active {
+  transform: scale(0.98);
+}
+.login-container button:active {
+  transform: scale(0.98);
+}
+.login-container {
+  animation: fadeIn 1s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
