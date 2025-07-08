@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="uk">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -60,120 +61,154 @@
 
   </style>
 </head>
+
 <body>
-  <header>
-    <h1 class="main-title">🙍‍♂️ Сторінка учня 🙍‍♂️</h1>
-    <p class="subtitle">Вітаємо у системі голосування</p>
-    <div class="header-buttons">
-      <button id="logoutButton" class="auth-button">Вийти</button>
-      <button id="themeToggle" class="theme-toggle-button">🌙</button>
+    <header>
+        <h1 class="main-title">🙍‍♂️ Сторінка учня 🙍‍♂️</h1>
+        <p class="subtitle">Вітаємо у системі голосування</p>
+        <div class="header-buttons">
+            <button id="logoutButton" class="auth-button">Вийти</button>
+            <!-- кнопка перекладу буде вставлена скриптом -->
+        </div>
+    </header>
 
-      <!-- кнопка перекладу буде вставлена скриптом -->
+    <div class="nav-tabs">
+        <button id="tab-main" class="active" type="button">🏠 Головна інформація 🏠</button>
+        <button id="tab-about-system" type="button">Про систему</button>
+        <button id="tab-profile" type="button">🛈 Інформація про мене 🛈</button>
+        <button id="create" type="button">Створити</button>
     </div>
-  </header>
 
-  <div class="nav-tabs">
-    <button id="tab-main" class="active" type="button">🏠 Головна інформація 🏠</button>
-    <button id="tab-about-system" type="button">⯑ Про систему ⯑</button>
-    <button id="tab-profile" type="button">🛈 Інформація про мене 🛈</button>
-    <button id="create" type="button">⊕ Створити ⊕</button>
-  </div>
+    <main>
+        <!-- Головна вкладка -->
+        <section id="main-page" class="page-section active">
+            <div class="info-card">
+                <h2>Календар подій</h2>
+                <div class="calendar-controls">
+                    <label for="calendar-user-select">Переглянути календар користувача:</label>
+                    <select id="calendar-user-select">
+                        <option value="">Я</option>
+                    </select>
+                </div>
+                <div class="calendar-header">
+                    <button id="prev-period">◀</button>
+                    <span id="period-name"></span>
+                    <button id="next-period">▶</button>
+                </div>
+                <div id="calendar-view-container">
+                    <table id="calendar-table">
+                        <thead>
+                            <tr>
+                                <th>Пн</th>
+                                <th>Вт</th>
+                                <th>Ср</th>
+                                <th>Чт</th>
+                                <th>Пт</th>
+                                <th>Сб</th>
+                                <th>Нд</th>
+                            </tr>
+                        </thead>
+                        <tbody id="calendar-body"></tbody>
+                    </table>
+                </div>
+            </div>
 
-  <main>
-    <!-- Головна вкладка -->
-    <section id="main-page" class="page-section active">
-      <div class="info-card">
-        <h2>Календар подій</h2>
-        <div class="calendar-controls">
-          <label for="calendar-user-select">Переглянути календар користувача:</label>
-          <select id="calendar-user-select">
-            <option value="">Я</option>
-          </select>
-        </div>
-        <div class="calendar-header">
-          <button id="prev-period">◀</button>
-          <span id="period-name"></span>
-          <button id="next-period">▶</button>
-        </div>
-        <div id="calendar-view-container">
-          <table id="calendar-table">
-            <thead>
-              <tr>
-                <th>Пн</th><th>Вт</th><th>Ср</th><th>Чт</th><th>Пт</th><th>Сб</th><th>Нд</th>
-              </tr>
-            </thead>
-            <tbody id="calendar-body"></tbody>
-          </table>
-        </div>
-      </div>
+            <div class="info-card">
+                <h2>Голосування</h2>
+                <div id="available-votes-container"></div>
+            </div>
+            <div class="info-card">
+                <h3>Активні петиції</h3>
+                <div id="petition-list"></div>
+            </div>
+        </section>
 
-      <div class="info-card">
-        <h2>Голосування</h2>
-        <div id="available-votes-container"></div>
-      </div>
-    </section>
+        <!-- Профіль -->
+        <section id="profile-page" class="page-section">
+            <div class="info-card">
+                <h2>Інформація про учня</h2>
+                <p><strong>Ім'я:</strong> <span id="profile-firstName">-</span></p>
+                <p><strong>Прізвище:</strong> <span id="profile-lastName">-</span></p>
+                <p><strong>Дата народження:</strong> <span id="profile-dateOfBirth">-</span></p>
+                <p><strong>Про мене:</strong> <span id="profile-aboutMe">-</span></p>
+                <p><strong>Email:</strong> <span id="profile-email">-</span></p>
+                <p><strong>Роль:</strong> <span id="profile-role">-</span></p>
+            </div>
+            <div class="info-card">
+                <h2>Оновити інформацію</h2>
+                <form id="editProfileForm">
+                    <label for="edit-firstName">Ім'я:</label>
+                    <input type="text" id="edit-firstName" name="firstName" />
+                    <label for="edit-lastName">Прізвище:</label>
+                    <input type="text" id="edit-lastName" name="lastName" />
+                    <label for="edit-aboutMe">Про мене:</label>
+                    <textarea id="edit-aboutMe" name="aboutMe"></textarea>
+                    <label for="edit-dateOfBirth">Дата народження:</label>
+                    <input type="date" id="edit-dateOfBirth" name="dateOfBirth" />
+                    <label for="edit-email">Email:</label>
+                    <input type="email" id="edit-email" name="email" />
+                    <label for="edit-password">Новий пароль:</label>
+                    <input type="password" id="edit-password" name="password" />
+                    <label for="confirm-password">Підтвердження пароля:</label>
+                    <input type="password" id="confirm-password" name="confirmPassword" />
+                    <button type="submit">Оновити профіль</button>
+                </form>
+            </div>
+        </section>
 
-    <!-- Профіль -->
-    <section id="profile-page" class="page-section">
-      <div class="info-card">
-        <h2>Інформація про учня</h2>
-        <p><strong>Ім'я:</strong> <span id="profile-firstName">-</span></p>
-        <p><strong>Прізвище:</strong> <span id="profile-lastName">-</span></p>
-        <p><strong>Дата народження:</strong> <span id="profile-dateOfBirth">-</span></p>
-        <p><strong>Про мене:</strong> <span id="profile-aboutMe">-</span></p>
-        <p><strong>Email:</strong> <span id="profile-email">-</span></p>
-        <p><strong>Роль:</strong> <span id="profile-role">-</span></p>
-      </div>
-      <div class="info-card">
-        <h2>Оновити інформацію</h2>
-        <form id="editProfileForm">
-          <label for="edit-firstName">Ім'я:</label>
-          <input type="text" id="edit-firstName" name="firstName" />
-          <label for="edit-lastName">Прізвище:</label>
-          <input type="text" id="edit-lastName" name="lastName" />
-          <label for="edit-aboutMe">Про мене:</label>
-          <textarea id="edit-aboutMe" name="aboutMe"></textarea>
-          <label for="edit-dateOfBirth">Дата народження:</label>
-          <input type="date" id="edit-dateOfBirth" name="dateOfBirth" />
-          <label for="edit-email">Email:</label>
-          <input type="email" id="edit-email" name="email" />
-          <label for="edit-password">Новий пароль:</label>
-          <input type="password" id="edit-password" name="password" />
-          <label for="confirm-password">Підтвердження пароля:</label>
-          <input type="password" id="confirm-password" name="confirmPassword" />
-          <button type="submit">Оновити профіль</button>
-        </form>
-      </div>
-    </section>
+        <!-- Про систему -->
+        <section id="about_system_page" class="page-section">
+            <div class="info-card">
+                <h2>🛈 Про систему</h2>
+                <p>Ця система дозволяє організовувати та проводити голосування серед учнів школи, переглядати події та
+                    оновлювати інформацію про себе.</p>
+            </div>
+            <div class="info-card steps">
+                <h2>⯑ Як користуватись</h2>
+                <ol>
+                    <li>Авторизуйтесь у системі.</li>
+                    <li>Перейдіть до "Інформація про мене" для редагування профілю.</li>
+                    <li>Переглядайте події у календарі.</li>
+                    <li>Голосуйте в активних опитуваннях.</li>
+                </ol>
+            </div>
+        </section>
 
-    <!-- Про систему -->
-    <section id="about_system_page" class="page-section">
-      <div class="info-card">
-        <h2>🛈 Про систему</h2>
-        <p>Ця система дозволяє організовувати та проводити голосування серед учнів школи, переглядати події та оновлювати інформацію про себе.</p>
-      </div>
-      <div class="info-card steps">
-        <h2>⯑ Як користуватись</h2>
-        <ol>
-          <li>Авторизуйтесь у системі.</li>
-          <li>Перейдіть до "Інформація про мене" для редагування профілю.</li>
-          <li>Переглядайте події у календарі.</li>
-          <li>Голосуйте в активних опитуваннях.</li>
-        </ol>
-      </div>
-    </section>
+        <!-- Створити -->
+        <section id="create_page" class="page-section">
+            <div class="info-card">
+                <div id="vote-create-container"></div>
+            </div>
+            <div class="info-card">
+                <h3>Створити петицію</h3>
+                <form id="create-petition-form">
+                    <input id="petition-title" placeholder="Назва петиції" required><br>
+                    <textarea id="petition-description" placeholder="Текст петиції" required></textarea><br>
+                    <label>Рівень:
+                        <select id="petition-target">
+                            <option value="SCHOOL">Вся школа</option>
+                            <option value="CLASS">Ваш клас</option>
+                        </select>
+                    </label><br>
+                    <label>Дедлайн:
+                        <input type="date" id="petition-deadline" required>
+                    </label><br>
+                    <button type="submit">Створити петицію</button>
+                </form>
+            </div>
+        </section>
 
-    <!-- Створити -->
-    <section id="create_page" class="page-section">
-      <div class="info-card">
-        <div id="vote-create-container"></div>
-      </div>
-    </section>
+    </main>
 
+<<<<<<< HEAD
   </main>
 
   <script type="module" src="scripts/student.js"></script>
  
 
+=======
+    <script type="module" src="scripts/student.js"></script>
+>>>>>>> 0391c8e490d00233fffc63abcb80f6d901980eae
 </body>
+
 </html>

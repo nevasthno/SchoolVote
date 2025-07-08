@@ -3,6 +3,7 @@ package com.example.demo.javaSrc.worker;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.LinkedHashSet;
 
 import com.example.demo.javaSrc.comments.Comment;
 import com.example.demo.javaSrc.comments.CommentRepository;
@@ -243,38 +247,107 @@ public class ApiController {
 
     @PreAuthorize("hasRole('STUDENT')")
     @PostMapping("/createPetition")
-    public ResponseEntity<Petition> createPetition(@RequestBody Petition petitionRB, Authentication auth) {
-        People user = currentUser(auth);
-        if (user == null) {
-            return ResponseEntity.status(401).build();
+    public ResponseEntity<PetitionDto> createPetition(
+            @RequestBody PetitionCreateRequest req,
+            Authentication auth) {
+
+        People u = currentUser(auth);
+        if (u == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Petition petition = new Petition();
-        petition.setSchoolId(petitionRB.getSchoolId());
-        petition.setClassId(petitionRB.getClassId());
-        petition.setTitle(petitionRB.getTitle());
-        petition.setDescription(petitionRB.getDescription());
-        petition.setCreatedBy(user.getId());
-        petition.setStartDate(petitionRB.getStartDate());
-        petition.setEndDate(petitionRB.getEndDate());
+        Petition p = new Petition();
+        p.setTitle(req.title());
+        p.setDescription(req.description());
 
-        petitionRepository.save(petition);
+        Date startDate = Date.from(
+                req.startDate()
+                        .atZone(ZoneId.systemDefault())
+                        .toInstant());
+        Date endDate = Date.from(
+                req.endDate()
+                        .atZone(ZoneId.systemDefault())
+                        .toInstant());
+        p.setStartDate(startDate);
+        p.setEndDate(endDate);
 
-        return ResponseEntity.ok(petition);
+        p.setSchoolId(u.getSchoolId());
+        p.setClassId(req.classId());
+        p.setCreatedBy(u.getId());
+
+        p.setStatus(Petition.Status.OPEN);
+        p.setCurrentPositiveVoteCount(0);
+        p.setDirectorsDecision(Petition.DirectorsDecision.NOT_ENOUGH_VOTING);
+
+        Petition saved = petitionService.createPetition(p);
+
+        int totalStudents = petitionService.getTotalStudentsForPetition(saved);
+        PetitionDto dto = PetitionDto.from(saved, totalStudents);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 
-    @PostMapping("/petitions/{id}/vote")
+    @GetMapping("/petitions/user/{userId}")
+    public ResponseEntity<List<PetitionDto>> getAccessiblePetitions(
+            @PathVariable Long userId,
+            @RequestParam Long schoolId,
+            @RequestParam(required = false) Long classId) {
+
+        List<Petition> schoolPetitions = petitionService.getPetitionBySchool(schoolId);
+
+        List<Petition> classPetitions = classId != null
+                ? petitionService.getPetitionByClassAndSchool(classId, schoolId)
+                : List.of();
+
+        Set<Petition> merged = new LinkedHashSet<>();
+        merged.addAll(schoolPetitions);
+        merged.addAll(classPetitions);
+
+        List<PetitionDto> dtos = merged.stream()
+                .map(p -> {
+                    int totalStudents;
+                    if (p.getClassId() != null) {
+                        totalStudents = peopleService
+                                .getBySchoolClassAndRole(p.getSchoolId(), p.getClassId(), People.Role.STUDENT)
+                                .size();
+                    } else {
+                        totalStudents = peopleService
+                                .getBySchoolClassAndRole(p.getSchoolId(), null, People.Role.STUDENT)
+                                .size();
+                    }
+                    return PetitionDto.from(p, totalStudents);
+                })
+                .toList();
+
+        return ResponseEntity.ok(dtos);
+    }
+
     @PreAuthorize("hasRole('STUDENT')")
-    public ResponseEntity<?> voteForPetition(@PathVariable Long id,
-            @RequestParam("vote") PetitionVote.VoteVariant vote,
+    @PostMapping("/petitions/{id}/vote")
+    public ResponseEntity<Void> signPetition(
+            @PathVariable Long id,
             @AuthenticationPrincipal People user) {
+
         try {
-            Long studentId = user.getId();
-            petitionService.vote(id, studentId, vote);
-            return ResponseEntity.ok("Vote recorded");
+            petitionService.vote(id, user.getId(), PetitionVote.VoteVariant.YES);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
+    }
+
+    @PreAuthorize("hasRole('DIRECTOR')")
+    @PostMapping("/petitions/{id}/director")
+    public ResponseEntity<Void> directorApprove(
+            @PathVariable Long id) {
+
+        Petition p = petitionService.getPetitionById(id);
+        if (p == null || p.getDirectorsDecision() != Petition.DirectorsDecision.PENDING) {
+            return ResponseEntity.badRequest().build();
+        }
+        p.setDirectorsDecision(Petition.DirectorsDecision.APPROVED);
+        petitionService.createPetition(p);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/createVoting")

@@ -1,137 +1,108 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const petitionForm = document.getElementById("create-petition-form");
-    const petitionList = document.getElementById("petition-list");
+import { fetchWithAuth } from './api.js';
 
-    // Імітація кількості учнів у школі та класах
-    const schoolData = {
-        totalSchoolStudents: 300,
-        classSizes: {
-            "9-А": 28,
-            "10-Б": 25,
-            "11-В": 30
-        }
-    };
+export function initializePetitions(user) {
+  const form = document.getElementById('create-petition-form');
+  const list = document.getElementById('petition-list');
 
-    function loadPetitions() {
-        return JSON.parse(localStorage.getItem("petitions") || "[]");
+  async function load() {
+    list.innerHTML = 'Завантаження…';
+    try {
+      const resp = await fetchWithAuth(
+        `/api/petitions/user/${user.id}?schoolId=${user.schoolId}&classId=${user.classId || ''}`
+      );
+      if (!resp.ok) throw await resp.text();
+      const petitions = await resp.json();
+      renderList(petitions);
+    } catch (err) {
+      list.innerHTML = `<p class="error">Не вдалося завантажити петиції: ${err}</p>`;
+    }
+  }
+
+  function renderList(petitions) {
+    if (!petitions.length) {
+      list.innerHTML = '<p>Немає активних петицій.</p>';
+      return;
+    }
+    list.innerHTML = petitions.map(p => {
+      const pct = Math.min(100, Math.round((p.currentVotes / p.threshold) * 100));
+      const isOpen = new Date(p.endDate) > new Date();
+      return `
+      <div class="petition-card">
+        <h4>${p.title}</h4>
+        <div class="petition-meta">
+          <span>Дедлайн: ${new Date(p.endDate).toLocaleDateString()}</span> |
+          <span>Підписали: ${p.currentVotes} / ${p.threshold}</span>
+        </div>
+        <div class="petition-progress">
+          <div class="petition-progress-bar" style="width:${pct}%;"></div>
+        </div>
+        <div>${p.description}</div>
+        <div class="petition-actions">
+          ${
+            !p.approvedByDirector && isOpen
+              ? `
+            <button class="yes" onclick="votePetition(${p.id}, 'YES')">Підтримати</button>
+            <button class="no"  onclick="votePetition(${p.id}, 'NO')">Відхилити</button>
+            `
+              : p.approvedByDirector
+              ? `<button class="disabled">✅ Ухвалено директором</button>`
+              : `<button class="disabled">❌ Закрито</button>`
+          }
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  window.votePetition = async (id, variant) => {
+    try {
+      const resp = await fetchWithAuth(`/api/petitions/${id}/vote?vote=${variant}`, {
+        method: 'POST'
+      });
+      if (!resp.ok) {
+        const text = await resp.text();
+        throw text || resp.statusText;
+      }
+      await load();
+    } catch (e) {
+      alert('Не вдалося підписати: ' + e);
+    }
+  };
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const title = form.querySelector('#petition-title').value.trim();
+    const description = form.querySelector('#petition-description').value.trim();
+    const level = form.querySelector('#petition-target').value;
+    const endDate = form.querySelector('#petition-deadline').value;
+    if (!title || !description || !endDate) {
+      return alert('Будь ласка, заповніть усі поля.');
     }
 
-    function savePetitions(petitions) {
-        localStorage.setItem("petitions", JSON.stringify(petitions));
-    }
-
-    function renderPetitions() {
-        const petitions = loadPetitions();
-        petitionList.innerHTML = "";
-
-        if (petitions.length === 0) {
-            petitionList.innerHTML = "<p>Немає активних петицій.</p>";
-            return;
-        }
-
-        petitions.forEach(petition => {
-            const div = document.createElement("div");
-            div.className = "aboutme-card";
-
-            div.innerHTML = `
-                <h3>${petition.title}</h3>
-                <p><strong>Автор:</strong> ${petition.creator}</p>
-                <p>${petition.description}</p>
-                <p><strong>Ціль:</strong> ${petition.targetType === "school" ? "Вся школа" : `Клас ${petition.targetClass}`}</p>
-                <p><strong>Потрібно голосів:</strong> ${petition.threshold}</p>
-                <p><strong>Підписали:</strong> ${petition.votes.length}</p>
-                ${petition.signedByDirector ? `<p style="color:green;"><strong>✅ Підписано директором</strong></p>` : ""}
-                <button ${petition.signedByDirector ? "disabled" : ""} onclick="signPetition(${petition.id})">Підписати</button>
-                ${(petition.votes.length >= petition.threshold && !petition.signedByDirector)
-                    ? `<button onclick="directorSign(${petition.id})">Підписати як директор</button>`
-                    : ""}
-            `;
-
-            petitionList.appendChild(div);
-        });
-    }
-
-    petitionForm?.addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        const title = document.getElementById("petition-title").value.trim();
-        const description = document.getElementById("petition-description").value.trim();
-        const creator = document.getElementById("petition-author").value.trim();
-        const target = document.getElementById("petition-target").value;
-
-        let threshold = 0;
-        let targetType = "class";
-        let targetClass = null;
-
-        if (target === "school") {
-            threshold = Math.ceil(schoolData.totalSchoolStudents * 0.5);
-            targetType = "school";
-        } else if (schoolData.classSizes[target]) {
-            threshold = Math.ceil(schoolData.classSizes[target] * 0.5);
-            targetClass = target;
-        } else {
-            alert("Обраний клас не існує.");
-            return;
-        }
-
-        if (!title || !description || !creator) {
-            alert("Будь ласка, заповніть усі поля.");
-            return;
-        }
-
-        const petitions = loadPetitions();
-
-        const newPetition = {
-            id: Date.now(),
-            title,
-            description,
-            creator,
-            targetType,
-            targetClass,
-            threshold,
-            votes: [],
-            signedByDirector: false
-        };
-
-        petitions.push(newPetition);
-        savePetitions(petitions);
-        petitionForm.reset();
-        renderPetitions();
-    });
-
-    // Підпис учнем
-    window.signPetition = (id) => {
-        const petitions = loadPetitions();
-        const email = prompt("Введіть свій email для підпису:");
-
-        if (!email || !email.includes("@")) {
-            alert("Некоректний email.");
-            return;
-        }
-
-        const petition = petitions.find(p => p.id === id);
-        if (petition.votes.includes(email)) {
-            alert("Ви вже підписали цю петицію.");
-            return;
-        }
-
-        petition.votes.push(email);
-        savePetitions(petitions);
-        renderPetitions();
+    const payload = {
+      title,
+      description,
+      startDate: new Date().toISOString().split('T')[0],    // тільки дата
+      endDate:   new Date(endDate).toISOString().split('T')[0],
+      schoolId: user.schoolId,
+      classId: level === 'CLASS' ? user.classId : null
     };
 
-    // Підпис директором
-    window.directorSign = (id) => {
-        const confirmSign = confirm("Підписати цю петицію як директор?");
-        if (!confirmSign) return;
+    try {
+      const resp = await fetchWithAuth('/api/createPetition', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      if (!resp.ok) {
+        const err = await resp.text();
+        throw err || resp.statusText;
+      }
+      form.reset();
+      await load();
+    } catch (err) {
+      alert('Помилка створення петиції: ' + err);
+    }
+  });
 
-        const petitions = loadPetitions();
-        const petition = petitions.find(p => p.id === id);
-
-        petition.signedByDirector = true;
-        savePetitions(petitions);
-        renderPetitions();
-    };
-
-    renderPetitions();
-});
+  load();
+}

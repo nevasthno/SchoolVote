@@ -20,8 +20,9 @@ public class Petition {
     }
 
     public enum DirectorsDecision {
-        APPROVED, REJECTED, PENDING,NOT_ENOUGH_VOTING
+        APPROVED, REJECTED, PENDING, NOT_ENOUGH_VOTING
     }
+
     public enum VariantsOfVote {
         YES, NO, DID_NOT_VOTE
     }
@@ -56,13 +57,11 @@ public class Petition {
     public Status status;
 
     @Column(name = "current_positive_vote_count", nullable = false)
-    private int current_positive_vote_count = 0;
+    private int currentPositiveVoteCount = 0;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "directors_decision", nullable = false)
-    public DirectorsDecision directorsDecision  = DirectorsDecision.NOT_ENOUGH_VOTING;
-
-
+    public DirectorsDecision directorsDecision = DirectorsDecision.NOT_ENOUGH_VOTING;
 
     public Petition() {
     }
@@ -81,6 +80,9 @@ public class Petition {
 
     public Long getId() {
         return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -147,17 +149,19 @@ public class Petition {
         this.status = status;
     }
 
-    public int getCurrentVoteCount() {
-        return current_positive_vote_count;
+    public int getCurrentPositiveVoteCount() {
+        return currentPositiveVoteCount;
     }
-    public void setCurrentVoteCount(int current_positive_vote_count) {
-        this.current_positive_vote_count = current_positive_vote_count;
+
+    public void setCurrentPositiveVoteCount(int count) {
+        this.currentPositiveVoteCount = count;
     }
 
     public DirectorsDecision getDirectorsDecision() {
         return directorsDecision;
     }
+
     public void setDirectorsDecision(DirectorsDecision directors_decision) {
         this.directorsDecision = directors_decision;
-    }    
+    }
 }

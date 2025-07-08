@@ -1,4 +1,5 @@
 package com.example.demo.javaSrc.petitions;
+
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -6,6 +7,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.example.demo.javaSrc.people.People;
 import com.example.demo.javaSrc.people.PeopleRepository;
 import jakarta.transaction.Transactional;
 
@@ -72,7 +75,6 @@ public class PetitionService {
         return petitionRepository.findByDirectorsDecision(directorsDecision);
     }
 
-
     public Petition updatePetition(Long id, Petition updatedPetition) {
         return petitionRepository.findById(id).map(existing -> {
             existing.setSchoolId(updatedPetition.getSchoolId());
@@ -83,34 +85,39 @@ public class PetitionService {
             existing.setStartDate(updatedPetition.getStartDate());
             existing.setEndDate(updatedPetition.getEndDate());
             existing.setStatus(updatedPetition.getStatus());
-            existing.setCurrentVoteCount(updatedPetition.getCurrentVoteCount());
+            existing.setCurrentPositiveVoteCount(updatedPetition.getCurrentPositiveVoteCount());
             existing.setDirectorsDecision(updatedPetition.getDirectorsDecision());
             return petitionRepository.save(existing);
         }).orElse(null);
     }
 
-    private int getTotalStudentsForPetition(Petition petition) {
+    public int getTotalStudentsForPetition(Petition petition) {
         if (petition.getClassId() != null) {
-            // шукаємо всіх студентів конкретного класу
-            return peopleRepository.findByRoleAndSchoolIdAndClassId("STUDENT", petition.getSchoolId(), petition.getClassId()).size();
+            return peopleRepository
+                    .findByRoleAndSchoolIdAndClassId(
+                            People.Role.STUDENT,
+                            petition.getSchoolId(),
+                            petition.getClassId())
+                    .size();
         } else {
-            // шукаємо всіх студентів школи
-            return peopleRepository.findByRoleAndSchoolId("STUDENT", petition.getSchoolId()).size();
+            return peopleRepository
+                    .findByRoleAndSchoolId(
+                            People.Role.STUDENT,
+                            petition.getSchoolId())
+                    .size();
         }
     }
 
-    
     @Transactional
     public void vote(Long petitionId, Long studentId, PetitionVote.VoteVariant vote) throws Exception {
         Petition petition = petitionRepository.findById(petitionId)
-            .orElseThrow(() -> new Exception("Petition not found"));
+                .orElseThrow(() -> new Exception("Petition not found"));
 
         if (LocalDateTime.now().isAfter(petition.getEndDate().toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime())) {
             throw new Exception("Petition already ended");
         }
-
 
         boolean alreadyVoted = petitionVoteRepository.existsByPetitionIdAndStudentId(petitionId, studentId);
         if (alreadyVoted) {
@@ -125,8 +132,8 @@ public class PetitionService {
         petitionVoteRepository.save(petitionVote);
 
         if (vote == PetitionVote.VoteVariant.YES) {
-            int newCount = petition.getCurrentVoteCount() + 1;
-            petition.setCurrentVoteCount(newCount);
+            int newCount = petition.getCurrentPositiveVoteCount() + 1;
+            petition.setCurrentPositiveVoteCount(newCount);
 
             // Перевірка, чи досягнуто 50%+1 учасників
             int totalStudents = getTotalStudentsForPetition(petition);
