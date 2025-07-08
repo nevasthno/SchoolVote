@@ -14,18 +14,23 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.example.demo.javaSrc.people.*;
 import com.example.demo.javaSrc.school.*;
 import com.example.demo.javaSrc.worker.*;
+import com.example.demo.javaSrc.petitions.*;
+import com.example.demo.javaSrc.voting.*;
+import com.example.demo.javaSrc.comments.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
 import org.mockito.InjectMocks;
-import org.mockito.Mockito;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
 
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import org.springframework.security.test.context.support.WithMockUser;
-
-
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -49,14 +54,30 @@ public class ApiControllerTest {
     @MockBean
     private PeopleRepository peopleRepository;
 
-   
-    @InjectMocks
-    private ApiController apiController;  
+    @MockBean
+    private VoteService voteService;
 
-    
+    @MockBean
+    private PetitionService petitionService;
+
+    @MockBean
+    private PetitionRepository petitionRepository;
+
+    @MockBean
+    private CommentService commentService;
+
+    @MockBean
+    private CommentRepository commentRepository;
+
+    @InjectMocks
+    private ApiController apiController;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
+
     @BeforeEach
     void setUp() {
-        peopleRepository.deleteAll();
+        reset(peopleService, schoolService, classService, voteService, 
+              petitionService, commentService, passwordEncoder);
     }
 
     @Test
@@ -98,7 +119,6 @@ public class ApiControllerTest {
                 .andExpect(jsonPath("$[1].name").value("Class 2"));
     }
 
-   
     @Test
     @WithMockUser(username = "user", roles = {"TEACHER"})
     void testGetAllUsers() throws Exception {
@@ -141,14 +161,159 @@ public class ApiControllerTest {
         List<People> peopleList = List.of(people1, people2);
 
         when(peopleService.getPeopleByRole("STUDENT")).thenReturn(peopleList);
-        Authentication auth = Mockito.mock(Authentication.class);
 
-        
         mockMvc.perform(get("/api/users/role/STUDENT")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].firstName").value("John"))
                 .andExpect(jsonPath("$[1].firstName").value("Jane"));
     }
+
+
+    @Test
+    @WithMockUser(username = "teacher@test.com", roles = {"TEACHER"})
+    void testUpdateUserByTeacher_Success() throws Exception {
+        Long userId = 1L;
+        People updatedUser = new People();
+        updatedUser.setId(userId);
+        updatedUser.setFirstName("Updated");
+        updatedUser.setLastName("User");
+
+        when(peopleService.updateProfile(eq(userId), any(People.class))).thenReturn(updatedUser);
+
+        mockMvc.perform(put("/api/users/{id}", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedUser)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName").value("Updated"))
+                .andExpect(jsonPath("$.lastName").value("User"));
+
+        verify(peopleService).updateProfile(eq(userId), any(People.class));
+    }
+
+    @Test
+    @WithMockUser(username = "teacher@test.com", roles = {"TEACHER"})
+    void testUpdateUserByTeacher_NotFound() throws Exception {
+        Long userId = 999L;
+        People updatedUser = new People();
+
+        when(peopleService.updateProfile(eq(userId), any(People.class))).thenReturn(null);
+
+        mockMvc.perform(put("/api/users/{id}", userId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updatedUser)))
+                .andExpect(status().isNotFound());
+    }
+
+    
+
+    @Test
+    void testSignPetition_Success() throws Exception {
+        Long petitionId = 1L;
+        People student = new People();
+        student.setId(1L);
+        student.setEmail("student@test.com");
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(student, null, AuthorityUtils.createAuthorityList("ROLE_STUDENT"));
+
+        doNothing().when(petitionService).vote(eq(petitionId), eq(1L), eq(PetitionVote.VoteVariant.YES));
+
+        mockMvc.perform(post("/api/petitions/{id}/vote", petitionId)
+                        .with(authentication(authentication)))
+                .andExpect(status().isOk());
+
+        verify(petitionService).vote(petitionId, 1L, PetitionVote.VoteVariant.YES);
+    }
+
+    @Test
+    void testSignPetition_BadRequest() throws Exception {
+        Long petitionId = 1L;
+        People student = new People();
+        student.setId(1L);
+        student.setEmail("student@test.com");
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(student, null, AuthorityUtils.createAuthorityList("ROLE_STUDENT"));
+
+        doThrow(new RuntimeException("Vote failed")).when(petitionService)
+                .vote(eq(petitionId), eq(1L), eq(PetitionVote.VoteVariant.YES));
+
+        mockMvc.perform(post("/api/petitions/{id}/vote", petitionId)
+                        .with(authentication(authentication)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "director@test.com", roles = {"DIRECTOR"})
+    void testDirectorApprove_Success() throws Exception {
+        Long petitionId = 1L;
+        Petition petition = new Petition();
+        petition.setId(petitionId);
+        petition.setDirectorsDecision(Petition.DirectorsDecision.PENDING);
+
+        when(petitionService.getPetitionById(petitionId)).thenReturn(petition);
+        when(petitionService.createPetition(any(Petition.class))).thenReturn(petition);
+
+        mockMvc.perform(post("/api/petitions/{id}/director", petitionId))
+                .andExpect(status().isOk());
+
+        verify(petitionService).createPetition(any(Petition.class));
+    }
+
+    @Test
+    @WithMockUser(username = "director@test.com", roles = {"DIRECTOR"})
+    void testDirectorApprove_BadRequest() throws Exception {
+        Long petitionId = 1L;
+        Petition petition = new Petition();
+        petition.setId(petitionId);
+        petition.setDirectorsDecision(Petition.DirectorsDecision.APPROVED); 
+
+        when(petitionService.getPetitionById(petitionId)).thenReturn(petition);
+
+        mockMvc.perform(post("/api/petitions/{id}/director", petitionId))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "user@test.com")
+    void testCastVote_Success() throws Exception {
+        Long votingId = 1L;
+        List<Long> variantIds = List.of(1L);
+        
+        People user = new People();
+        user.setId(1L);
+        
+        Vote vote = new Vote();
+        vote.setMultipleChoice(false);
+
+        when(voteService.getVotingById(votingId)).thenReturn(vote);
+        when(peopleService.findByEmail("user@test.com")).thenReturn(user);
+        when(voteService.recordVote(votingId, variantIds, 1L)).thenReturn(true);
+
+        mockMvc.perform(post("/api/voting/{votingId}/vote", votingId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(variantIds)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Vote recorded successfully"));
+    }
+
+    @Test
+    @WithMockUser(username = "user@test.com")
+    void testCastVote_MultipleChoiceViolation() throws Exception {
+        Long votingId = 1L;
+        List<Long> variantIds = List.of(1L, 2L); // Multiple choices
+        
+        Vote vote = new Vote();
+        vote.setMultipleChoice(false); // Single choice only
+
+        when(voteService.getVotingById(votingId)).thenReturn(vote);
+
+        mockMvc.perform(post("/api/voting/{votingId}/vote", votingId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(variantIds)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Це одно‑відповідне голосування, виберіть лише один варіант."));
+    }
+
+
 
 }

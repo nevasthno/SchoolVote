@@ -28,4 +28,14 @@ public record PetitionDto(
             approved
         );
     }
+
+    public void setTitle(String string) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setTitle'");
+    }
+
+    public void setDescription(String string) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setDescription'");
+    }
 }
