@@ -262,11 +262,11 @@ public class ApiController {
 
         Date startDate = Date.from(
                 req.startDate()
-                        .atZone(ZoneId.systemDefault())
+                        .atStartOfDay(ZoneId.systemDefault())
                         .toInstant());
         Date endDate = Date.from(
                 req.endDate()
-                        .atZone(ZoneId.systemDefault())
+                        .atStartOfDay(ZoneId.systemDefault())
                         .toInstant());
         p.setStartDate(startDate);
         p.setEndDate(endDate);
