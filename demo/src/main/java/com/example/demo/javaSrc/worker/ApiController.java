@@ -322,17 +322,45 @@ public class ApiController {
         return ResponseEntity.ok(dtos);
     }
 
-    @PreAuthorize("hasRole('STUDENT')")
-    @PostMapping("/petitions/{id}/vote")
-    public ResponseEntity<Void> signPetition(
+    /*
+     * @PreAuthorize("hasRole('STUDENT')")
+     * 
+     * @PostMapping(value = "/petitions/{id}/vote", consumes =
+     * MediaType.APPLICATION_JSON_VALUE)
+     * public ResponseEntity<Void> signPetition(
+     * 
+     * @PathVariable Long id,
+     * 
+     * @RequestBody PetitionVoteRequest req,
+     * 
+     * @AuthenticationPrincipal People user) {
+     * 
+     * try {
+     * petitionService.vote(id, user.getId(), req.getVote());
+     * return ResponseEntity.ok().build();
+     * } catch (Exception e) {
+     * return ResponseEntity.badRequest().build();
+     * }
+     * }
+     */
+
+    @PostMapping(value = "/petitions/{id}/vote", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> votePetition(
             @PathVariable Long id,
-            @AuthenticationPrincipal People user) {
+            @RequestBody PetitionVoteRequest req,
+            Authentication auth) {
 
         try {
-            petitionService.vote(id, user.getId(), PetitionVote.VoteVariant.YES);
+            People user = peopleService.findByEmail(auth.getName()); // 💡 отримаємо юзера вручну
+            petitionService.vote(id, user.getId(), req.getVote());
             return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest()
+                    .body("Недопустимый тип голосування: " + req.getVote());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return ResponseEntity.badRequest()
+                    .body("Помилка у голосуванні: " + ex.getMessage());
         }
     }
 

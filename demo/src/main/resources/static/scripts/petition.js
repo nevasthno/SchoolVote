@@ -54,18 +54,22 @@ export function initializePetitions(user) {
 
     window.votePetition = async (id, variant) => {
         try {
-            const resp = await fetchWithAuth(`/api/petitions/${id}/vote?vote=${variant}`, {
-                method: 'POST'
+            const resp = await fetchWithAuth(`/api/petitions/${id}/vote`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ vote: variant })
             });
+
             if (!resp.ok) {
-                const text = await resp.text();
-                throw text || resp.statusText;
+                const errText = await resp.text();
+                throw new Error(errText || resp.statusText);
             }
             await load();
-        } catch (e) {
-            alert('Не вдалося підписати: ' + e);
+        } catch (err) {
+            alert('Не вдалося проголосувати: ' + err.message);
         }
     };
+
 
     form.addEventListener('submit', async e => {
         e.preventDefault();
@@ -84,6 +88,10 @@ export function initializePetitions(user) {
             endDate: new Date(endDate).toISOString().split('T')[0],
             classId: level === 'CLASS' ? user.classId : null
         };
+        const rawDate = form.querySelector('#petition-deadline').value;
+        payload.startDate = rawDate + 'T00:00:00';
+        payload.endDate = rawDate + 'T23:59:59';
+
 
         try {
             const resp = await fetchWithAuth('/api/createPetition', {
